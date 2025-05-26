@@ -36,7 +36,7 @@ This project will allow you to play Blackjack in the CLI against a number of Com
 git clone https://github.com/12awoodward/blackjack.git
 ```
 
-2. run `main.py` from the projects root directory
+2. run `src/main.py` from the projects root directory
 ```
-python3 main.py
+python3 src/main.py
 ```
