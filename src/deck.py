@@ -1,12 +1,13 @@
 from enum import Enum
+from random import shuffle
 
 from card import *
 
 class Suits(Enum):
-    SPADES = "spades"
-    CLUBS = "clubs"
-    HEARTS = "hearts"
-    DIAMONDS = "diamonds"
+    SPADES = "\u2660"
+    CLUBS = "\u2663"
+    HEARTS = "\u2661"
+    DIAMONDS = "\u2662"
 
 class Numbers(Enum):
     ACE = "A"
@@ -33,3 +34,17 @@ class Deck:
             for suit in Suits:
                 for num in Numbers:
                     self.deck.append(Card(suit, num))
+        self.shuffle_deck()
+
+    def draw_card(self, count = 1):
+        draw = []
+        for i in range(count):
+            draw.append(self.deck.pop())
+        return draw
+    
+    def return_to_deck(self, card):
+        self.deck.append(card)
+        self.shuffle_deck()
+    
+    def shuffle_deck(self):
+        shuffle(self.deck)
