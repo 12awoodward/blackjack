@@ -1,3 +1,4 @@
+from deck import *
 
 default = {
     "all" : {
@@ -15,6 +16,6 @@ default = {
 }
 
 def main():
-    print(default)
+    new_deck = Deck()
 
 main()
