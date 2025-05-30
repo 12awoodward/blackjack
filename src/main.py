@@ -1,4 +1,5 @@
 from blackjack import *
+from player import *
 
 default = {
     "all" : {
@@ -16,7 +17,7 @@ default = {
 }
 
 def main():
-    players = [True, True, True, False]
+    players = [Player("CPU-1", True), Player("CPU-2", True), Player("CPU-3", True), Player("Player", False)]
     new_game = Blackjack(players, default)
 
 main()
