@@ -5,4 +5,4 @@ class Card:
         self.effects = effects
 
     def __repr__(self):
-        return f"{self.num.value} {self.suit.value}"
+        return f"{self.num.value}{self.suit.value}"
