@@ -8,8 +8,8 @@ class Blackjack:
 
         self.players = players
 
-        self.current_turn = 2
-        self.effects = {
+        self.current_turn = 0
+        self.status = {
             "pickup": 0,
             "direction": 1,
             "skip" : False,
@@ -22,3 +22,11 @@ class Blackjack:
         for i in range(amount):
             for player in self.players:
                 player.take_cards(self.deck.draw_card())
+    
+    def next_turn(self):
+        self.current_turn += self.status["direction"]
+
+        if self.current_turn < 0:
+            self.current_turn = len(self.players) - 1
+        elif self.current_turn >= len(self.players):
+            self.current_turn = 0

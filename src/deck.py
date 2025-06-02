@@ -66,7 +66,7 @@ class Deck:
 
             if len(effect) > 1:
                 effect_arg = effect[1]
-                effect_func = lambda e: effect_alias[effect_name](e, effect_arg)
+                effect_func = lambda status: effect_alias[effect_name](status, effect_arg)
                 effect_funcs.append(effect_func)
             else:
                 effect_funcs.append(effect_alias[effect_name])

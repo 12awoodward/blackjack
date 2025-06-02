@@ -69,10 +69,6 @@ def main():
         set_name_spacing(player, size)
     
     new_game = Blackjack(players, default)
-    # print_card_dealing(new_game.players)
-
-    for card in new_game.deck.deck:
-        for effect in card.effects:
-            effect(None)
+    print_card_dealing(new_game.players)
 
 main()

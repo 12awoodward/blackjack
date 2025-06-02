@@ -1,17 +1,17 @@
-def change_suit(effects):
-    effects["suit"] = "set"
+def change_suit(status):
+    status["suit"] = "set"
 
-def change_direction(effects):
-    effects["direction"] = effects["direction"] * -1
+def change_direction(status):
+    status["direction"] *= -1
 
-def skip_turn(effects):
-    effects["skip"] = True
+def skip_turn(status):
+    status["skip"] = True
 
-def pickup_add(effects, amount):
-    effects["pickup"] += amount
+def pickup_add(status, amount):
+    status["pickup"] += amount
 
-def pickup_set(effects, amount):
-    effects["pickup"] = amount
+def pickup_set(status, amount):
+    status["pickup"] = amount
 
 effect_alias = {
     "suit": change_suit,
