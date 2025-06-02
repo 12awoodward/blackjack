@@ -26,10 +26,10 @@ class Numbers(Enum):
 
 class Deck:
     def __init__(self, deck_count = 1):
+        self.deck = []
         self.gen_deck(deck_count)
     
-    def gen_deck(self, deck_count):
-        self.deck = []
+    def gen_deck(self, deck_count = 1):
         for i in range(deck_count):
             for suit in Suits:
                 for num in Numbers:
