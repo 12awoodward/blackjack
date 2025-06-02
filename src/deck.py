@@ -52,11 +52,12 @@ class Deck:
                                 effects += effect_funcs
                     
                     self.deck.append(Card(suit, num, effects, is_pickup))
+
         self.shuffle_deck()
     
     def set_card_effects(self, effects):
         effect_funcs = []
-        pickup = False
+        pickup = False # track if pickup rule is set
         for effect in effects:
             effect = effect.split(":")
             effect_name = effect[0]
@@ -65,7 +66,7 @@ class Deck:
                 pickup = True
 
             if len(effect) > 1:
-                effect_arg = effect[1]
+                effect_arg = int(effect[1])
                 effect_func = lambda status: effect_alias[effect_name](status, effect_arg)
                 effect_funcs.append(effect_func)
             else:

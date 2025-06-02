@@ -3,6 +3,7 @@ from player import *
 
 class Blackjack:
     def __init__(self, players, rules):
+        self.game_over = False
         self.deck = Deck(rules)
         self.players = players
         self.current_turn = 0
@@ -29,26 +30,36 @@ class Blackjack:
             self.current_turn = 0
 
     def play_turn(self, card_index):
-        if self.state["skip"]:
+        # turn was skipped
+        if self.status["skip"]:
+            self.status["skip"] = False
             self.next_turn()
             return
         
         current_player = self.players[self.current_turn]
         
+        # player chose pickup
         if card_index == -1:
-            pickups = self.state["pickup"]
+            pickups = self.status["pickup"]
             if pickups == 0:
                 pickups = 1
             current_player.take_cards(self.deck.draw_card(pickups))
+            self.status["pickup"] = 0
             self.next_turn()
             return
 
+        # player played a card
         card = current_player.hand[card_index]
         if self.can_play_card(card):
             self.deck.return_to_deck(self.top_card)
             self.top_card = current_player.play_card(card_index)
             self.apply_card_effects(card)
 
+            # handle end game
+            if len(current_player.hand) == 0:
+                self.game_over = True
+                return # dont so next turn - current player is winner
+            
             # handle suit change
             if self.status["suit"] == "set":
                 self.status["suit"] = "spades"
@@ -56,21 +67,27 @@ class Blackjack:
             self.next_turn()
 
     def can_play_card(self, card):
-        if self.status["pickup"] == 0 and self.status["suit"] is None:
-            if card.suit == self.top_card.suit or card.num == self.top_card.num:
-                return True
-            
-        if self.status["pickup"] != 0 and self.status["suit"] is None:
-            if card.is_pickup:
+        # if no pickup
+        if self.status["pickup"] == 0:
+            # if suit was not changed
+            if self.status["suit"] is None:
                 if card.suit == self.top_card.suit or card.num == self.top_card.num:
                     return True
         
-        if self.status["pickup"] == 0 and self.status["suit"] is not None:
-            if card.suit.name.lower() == self.status["suit"] or card.num == self.top_card.num:
-                return True
-            
-        if self.status["pickup"] != 0 and self.status["suit"] is not None:
-            if card.is_pickup:
+            # if suit was changed
+            if self.status["suit"] is not None:
+                if card.suit.name.lower() == self.status["suit"] or card.num == self.top_card.num:
+                    return True
+                
+        # if there is pickup and is a pickup card
+        elif card.is_pickup:
+            # suit was not changed
+            if self.status["suit"] is None:
+                if card.suit == self.top_card.suit or card.num == self.top_card.num:
+                    return True
+              
+            # suit was changed
+            if self.status["suit"] is not None:
                 if card.suit.name.lower() == self.status["suit"] or card.num == self.top_card.num:
                     return True
             
