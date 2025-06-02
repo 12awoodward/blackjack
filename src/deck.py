@@ -25,15 +25,36 @@ class Numbers(Enum):
     KING = " K"
 
 class Deck:
-    def __init__(self, deck_count = 1):
+    def __init__(self, rules, deck_count = 1):
         self.deck = []
+        self.rules = rules
         self.gen_deck(deck_count)
     
     def gen_deck(self, deck_count = 1):
         for i in range(deck_count):
             for suit in Suits:
+                color = "black"
+                if suit == Suits.HEARTS or suit == Suits.DIAMONDS:
+                    color = "red" 
+                    
                 for num in Numbers:
-                    self.deck.append(Card(suit, num))
+                    effects = []
+                    num_str = num.value.strip()
+                    suit_str = suit.name.lower()
+
+                    if "all" in self.rules:
+                        if num_str in self.rules["all"]:
+                            effects += self.rules["all"][num_str]
+                    
+                    if color in self.rules:
+                        if num_str in self.rules[color]:
+                            effects += self.rules[color][num_str]
+
+                    if suit_str in self.rules:
+                        if num_str in self.rules[suit_str]:
+                            effects += self.rules[suit_str][num_str]
+                    
+                    self.deck.append(Card(suit, num, effects))
         self.shuffle_deck()
 
     def draw_card(self, count = 1):

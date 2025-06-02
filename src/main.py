@@ -6,15 +6,15 @@ from time import sleep
 default = {
     "all" : {
         "A" : ["suit"],
-        "2" : ["pickup_add_2"],
+        "2" : ["pickup_add:2"],
         "8" : ["skip"],
         "Q" : ["direction"],
     },
     "black" : {
-        "J" : ["pickup_add_5"],
+        "J" : ["pickup_add:5"],
     },
     "red" : {
-        "J" : ["pickup_set_0"],
+        "J" : ["pickup_set:0"],
     },
 }
 
@@ -69,6 +69,6 @@ def main():
         set_name_spacing(player, size)
     
     new_game = Blackjack(players, default)
-    print_card_dealing(new_game.players)
+    # print_card_dealing(new_game.players)
 
 main()

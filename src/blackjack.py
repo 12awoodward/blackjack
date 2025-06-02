@@ -3,10 +3,10 @@ from player import *
 
 class Blackjack:
     def __init__(self, players, rules):
-        self.deck = Deck()
+        self.deck = Deck(rules)
         self.top_card = None
 
-        self.players = players.copy()
+        self.players = players
 
         self.current_turn = 2
         self.effects = {
