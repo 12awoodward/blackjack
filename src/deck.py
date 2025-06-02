@@ -2,6 +2,7 @@ from enum import Enum
 from random import shuffle
 
 from card import *
+from card_effects import *
 
 class Suits(Enum):
     SPADES = "\u2660"
@@ -44,18 +45,35 @@ class Deck:
 
                     if "all" in self.rules:
                         if num_str in self.rules["all"]:
-                            effects += self.rules["all"][num_str]
+                            effects += self.set_card_effects(self.rules["all"][num_str])
                     
                     if color in self.rules:
                         if num_str in self.rules[color]:
-                            effects += self.rules[color][num_str]
+                            effects += self.set_card_effects(self.rules[color][num_str])
 
                     if suit_str in self.rules:
                         if num_str in self.rules[suit_str]:
-                            effects += self.rules[suit_str][num_str]
+                            effects += self.set_card_effects(self.rules[suit_str][num_str])
                     
                     self.deck.append(Card(suit, num, effects))
         self.shuffle_deck()
+    
+    def set_card_effects(self, effects):
+        effect_funcs = []
+        for effect in effects:
+            effect = effect.split(":")
+            effect_name = effect[0]
+
+            if len(effect) > 1:
+                effect_arg = effect[1]
+                effect_func = lambda e: effect_alias[effect_name](e, effect_arg)
+                effect_funcs.append(effect_func)
+            else:
+                effect_funcs.append(effect_alias[effect_name])
+
+        return effect_funcs
+            
+
 
     def draw_card(self, count = 1):
         draw = []

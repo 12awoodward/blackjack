@@ -1,7 +1,7 @@
+from time import sleep
+
 from blackjack import *
 from player import *
-
-from time import sleep
 
 default = {
     "all" : {
@@ -70,5 +70,9 @@ def main():
     
     new_game = Blackjack(players, default)
     # print_card_dealing(new_game.players)
+
+    for card in new_game.deck.deck:
+        for effect in card.effects:
+            effect(None)
 
 main()
