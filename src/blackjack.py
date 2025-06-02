@@ -17,9 +17,8 @@ class Blackjack:
         self.top_card = self.deck.draw_card()
 
     def initial_deal(self, amount = 7):
-        for i in range(amount):
-            for player in self.players:
-                player.take_cards(self.deck.draw_card())
+        for player in self.players:
+            player.take_cards(self.deck.draw_card(amount))
     
     def next_turn(self):
         self.current_turn += self.status["direction"]
@@ -32,4 +31,9 @@ class Blackjack:
     def play_turn(self, card_index):
         card = self.players[self.current_turn].hand[card_index]
         print(card)
+        self.apply_card_effects(card)
         self.next_turn()
+
+    def apply_card_effects(self, card):
+        for effect in card.effects:
+            effect(self.status)
