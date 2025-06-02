@@ -4,10 +4,7 @@ from player import *
 class Blackjack:
     def __init__(self, players, rules):
         self.deck = Deck(rules)
-        self.top_card = None
-
         self.players = players
-
         self.current_turn = 0
         self.status = {
             "pickup": 0,
@@ -17,6 +14,7 @@ class Blackjack:
         }
 
         self.initial_deal()
+        self.top_card = self.deck.draw_card()
 
     def initial_deal(self, amount = 7):
         for i in range(amount):
@@ -30,3 +28,8 @@ class Blackjack:
             self.current_turn = len(self.players) - 1
         elif self.current_turn >= len(self.players):
             self.current_turn = 0
+
+    def play_turn(self, card_index):
+        card = self.players[self.current_turn].hand[card_index]
+        print(card)
+        self.next_turn()

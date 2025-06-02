@@ -60,15 +60,28 @@ def print_card_dealing(players):
         print_all_players(players, length = i + 1)
         sleep(0.3)
 
+def print_turn(game):
+    spacing = "="*15
+    print(f"{spacing}\nTop Card: {str(game.top_card)}\n{spacing}")
+    print_all_players(game.players, current_turn=game.current_turn)
+
 def main():
-    players = [Player("CPU-1", True), Player("CPU-2", True), Player("CPU-3", True), Player("Player", False)]
+    # players = [Player("CPU-1", True), Player("CPU-2", True), Player("CPU-3", True), Player("Player", False)]
+    players = [Player("Player", False), Player("Player 2", False), Player("Player 3", False)]
 
     names = [player.name for player in players]
     size = len(max(names, key = lambda x : len(x)))
     for player in players:
         set_name_spacing(player, size)
     
-    new_game = Blackjack(players, default)
-    print_card_dealing(new_game.players)
+    game = Blackjack(players, default)
+    print_card_dealing(game.players)
+
+    while True:
+        print_turn(game)
+
+        card = int(input("Enter card index: "))
+
+        game.play_turn(card)
 
 main()
