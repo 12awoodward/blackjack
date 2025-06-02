@@ -29,12 +29,31 @@ class Blackjack:
             self.current_turn = 0
 
     def play_turn(self, card_index):
-        card = self.players[self.current_turn].hand[card_index]
+        if self.state["skip"]:
+            self.next_turn()
+            return
+        
+        current_player = self.players[self.current_turn]
+        
+        if card_index == -1:
+            pickups = self.state["pickup"]
+            if pickups == 0:
+                pickups = 1
+            current_player.take_cards(self.deck.draw_card(pickups))
+            self.next_turn()
+            return
+
+        card = current_player.hand[card_index]
         if self.can_play_card(card):
-            pass
-        print(card)
-        self.apply_card_effects(card)
-        self.next_turn()
+            self.deck.return_to_deck(self.top_card)
+            self.top_card = current_player.play_card(card_index)
+            self.apply_card_effects(card)
+
+            # handle suit change
+            if self.status["suit"] == "set":
+                self.status["suit"] = "spades"
+
+            self.next_turn()
 
     def can_play_card(self, card):
         if self.status["pickup"] == 0 and self.status["suit"] is None:
