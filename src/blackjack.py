@@ -84,7 +84,7 @@ class Blackjack:
         
             # if suit was changed
             if self.status["suit"] is not None:
-                if card.suit.name.lower() == self.status["suit"] or card.num == self.top_card.num:
+                if card.suit.name == self.status["suit"] or card.num == self.top_card.num:
                     return True
                 
         # if there is pickup and is a pickup card
@@ -96,7 +96,7 @@ class Blackjack:
               
             # suit was changed
             if self.status["suit"] is not None:
-                if card.suit.name.lower() == self.status["suit"] or card.num == self.top_card.num:
+                if card.suit.name == self.status["suit"] or card.num == self.top_card.num:
                     return True
             
         return False

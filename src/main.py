@@ -111,6 +111,31 @@ def print_state(game):
     print(f"{spacing}\n{status}\n{spacing}")
     print_all_players(game.players, current_turn=game.current_turn)
 
+def pick_suit_menu(game):
+    suit_txt = "Pick A Suit: "
+    suit_list = []
+    count = 1
+    for suit in Suits:
+        suit_txt += f" {count}) {suit} "
+        suit_list.append(suit)
+
+    while True:
+        print_message(suit_txt)
+
+        try:
+            choice = int(input("Enter Suit: "))
+        except ValueError:
+            print_message("Invalid Choice")
+            continue
+
+        choice -= 1
+        if choice < 0 or choice >= len(Suits):
+            print_message("Invalid Choice")
+            continue
+
+        game.pick_suit(suit_list[choice])
+        break
+
 def turn(game):
     current_player = game.players[game.current_turn]
     hand_size = len(current_player.hand)
@@ -142,8 +167,7 @@ def turn(game):
                 print_message(f"{current_player.name} Played: " + str(game.top_card))
             
             if turn_result == 2:
-                # pick suit
-                pass
+                pick_suit_menu(game)
             break
 
 def main():
@@ -160,6 +184,7 @@ def main():
     print_card_dealing(game.players)
 
     while not game.game_over:
+        # check if human can play
         turn(game)
     
     print(f"{game.players[game.current_turn].name} Wins!")
