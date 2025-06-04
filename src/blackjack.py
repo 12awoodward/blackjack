@@ -29,42 +29,50 @@ class Blackjack:
         elif self.current_turn >= len(self.players):
             self.current_turn = 0
 
-    def play_turn(self, card_index):
-        # turn was skipped
-        if self.status["skip"]:
-            self.status["skip"] = False
-            self.next_turn()
-            return
+    # returns 0 = turn fail, 1 = turn success, 2 = turn success - change suit
+    def play_turn(self, card_index = -1):
+        if not self.game_over:
+            # turn was skipped
+            if self.status["skip"]:
+                self.status["skip"] = False
+                self.next_turn()
+                return 1
         
-        current_player = self.players[self.current_turn]
-        
-        # player chose pickup
-        if card_index == -1:
-            pickups = self.status["pickup"]
-            if pickups == 0:
-                pickups = 1
-            current_player.take_cards(self.deck.draw_card(pickups))
-            self.status["pickup"] = 0
-            self.next_turn()
-            return
-
-        # player played a card
-        card = current_player.hand[card_index]
-        if self.can_play_card(card):
-            self.deck.return_to_deck(self.top_card)
-            self.top_card = current_player.play_card(card_index)
-            self.apply_card_effects(card)
-
-            # handle end game
-            if len(current_player.hand) == 0:
-                self.game_over = True
-                return # dont so next turn - current player is winner
+            current_player = self.players[self.current_turn]
             
-            # handle suit change
-            if self.status["suit"] == "set":
-                self.status["suit"] = "spades"
+            # player chose pickup
+            if card_index == -1:
+                pickups = self.status["pickup"]
+                if pickups == 0:
+                    pickups = 1
+                current_player.take_cards(self.deck.draw_card(pickups))
+                self.status["pickup"] = 0
+                self.next_turn()
+                return 1
 
-            self.next_turn()
+            # player played a card
+            card = current_player.hand[card_index]
+            if self.can_play_card(card):
+                self.deck.return_to_deck(self.top_card)
+                self.top_card = current_player.play_card(card_index)
+                self.apply_card_effects(card)
+
+                # handle end game
+                if len(current_player.hand) == 0:
+                    self.game_over = True
+                    return 1 # dont do next turn - current player is winner
+                
+                # handle suit change
+                if self.status["suit"] == "set":
+                    return 2
+                
+                #handle suit was changed
+                if self.status["suit"] is not None:
+                    self.status["suit"] = None
+
+                self.next_turn()
+                return 1
+        return 0
 
     def can_play_card(self, card):
         # if no pickup
