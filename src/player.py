@@ -18,11 +18,14 @@ class Player:
     def __init__(self, name, is_computer):
         self.name = name
         self.display_name = ""
-        self.hand = []
         self.is_computer = is_computer
+
+        self.hand = []
+        self.last_pickup = []
 
     def take_cards(self, cards):
         self.hand += cards
+        self.last_pickup = cards.copy()
         self.sort_hand()
 
     def sort_hand(self):

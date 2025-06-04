@@ -2,6 +2,8 @@ from time import sleep
 
 from blackjack import *
 from player import *
+from card import *
+from deck import Suits
 
 default = {
     "all" : {
@@ -20,7 +22,18 @@ default = {
 
 def set_name_spacing(player, size):
     # add spacing to match longest name
-    player.display_name = player.name + " " * (size - len(player.name))    
+    player.display_name = player.name + " " * (size - len(player.name)) 
+
+def print_message(txt, cards = []):
+    if cards:
+        join = " | "
+        for card in cards:
+            txt += str(card) + join
+        txt = txt[:-len(join)]
+    
+    sep = "-" * len(txt)
+    print(f"\n\n{sep}\n{txt}\n{sep}\n\n")
+    sleep(0.5)
 
 def get_str_player(player, hide = False, hand = None, selectable = False):
     if hand is None:
@@ -75,8 +88,13 @@ def print_card_dealing(players):
         print_all_players(players, length = i + 1)
         sleep(0.3)
 
-def print_turn(game):
-    status = f" Top Card: {str(game.top_card)}"
+def print_state(game):
+    top_card = game.top_card
+    if game.status["suit"] is not None:
+        suit = Suits[game.status["suit"]]
+        top_card = Card(suit, top_card.num)
+
+    status = f" Top Card: {str(top_card)}"
 
     if game.status["pickup"] > 0:
         status += "  - +" + str(game.status["pickup"])
@@ -93,6 +111,41 @@ def print_turn(game):
     print(f"{spacing}\n{status}\n{spacing}")
     print_all_players(game.players, current_turn=game.current_turn)
 
+def turn(game):
+    current_player = game.players[game.current_turn]
+    hand_size = len(current_player.hand)
+
+    while True:
+        print_state(game)
+        sleep(0.3)
+
+        try:
+            card = int(input("Enter Move: "))
+        except ValueError:
+            print_message("Invalid Move")
+            continue
+
+        if card < 0 or card > hand_size:
+            print_message("Invalid Move")
+            continue
+
+        card -= 1
+        turn_result = game.play_turn(card)
+        if turn_result == 0:
+            # turn fail
+            print_message(f"{current_player.name} Cannot Play: {current_player.hand[card]}")
+        else:
+            # turn success
+            if card < 0:
+                print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup)
+            else:
+                print_message(f"{current_player.name} Played: " + str(game.top_card))
+            
+            if turn_result == 2:
+                # pick suit
+                pass
+            break
+
 def main():
     # players = [Player("CPU-1", True), Player("CPU-2", True), Player("CPU-3", True), Player("Player", False)]
     players = [Player("Player", False), Player("Player 2", False), Player("Player 3", False)]
@@ -106,11 +159,9 @@ def main():
     game = Blackjack(players, default)
     print_card_dealing(game.players)
 
-    while True:
-        print_turn(game)
-
-        card = int(input("Enter card index: "))
-
-        game.play_turn(card)
+    while not game.game_over:
+        turn(game)
+    
+    print(f"{game.players[game.current_turn].name} Wins!")
 
 main()
