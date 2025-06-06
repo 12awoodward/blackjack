@@ -1,23 +1,10 @@
+from rule_files import *
 from blackjack import *
 from ui import *
 
-rules = {
-    "all" : {
-        "A" : ["suit"],
-        "2" : ["pickup_add:2"],
-        "8" : ["skip"],
-        "Q" : ["direction"],
-    },
-    "black" : {
-        "J" : ["pickup_add:5"],
-    },
-    "red" : {
-        "J" : ["pickup_set:0"],
-    },
-}
-
 def main():
     # pick rules
+    rules = default
 
     players = create_players()
     
