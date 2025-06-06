@@ -1,12 +1,71 @@
 from time import sleep
 
+from player import *
 from card import *
 from deck import Suits
 
 # Menu Timings
 deal_time = 0.3
+player_time = 0.7
 
 # Menus
+
+def set_player_name():
+    name = ""
+    while len(name) > 10 or len(name) < 3:
+        if len(name) > 0:
+            print_message("Name Must Be 3-10 Characters Long")
+
+        name = str(input("\nEnter New Players Name: "))
+    print(f"\nPlayer '{name}' Added\n")
+    sleep(player_time)
+    return name
+
+def create_players():
+    players = []
+    size = 0
+
+    while True:
+        menu_txt = "\n\n1) Add Human Player\n2) Add Computer Player\n0) Start Game\n"
+        print(menu_txt)
+
+        try:
+            option = int(input("Add Player? : "))
+        except ValueError:
+            print_message("Invalid Input")
+            continue
+
+        if option == 0:
+            if len(players) >= 2:
+                break
+            else:
+                print_message("Minimum 2 Players")
+        elif option == 1 or option == 2:
+                is_computer = option == 2
+                players.append(Player(set_player_name(), is_computer))
+
+                if len(players[-1].name) > size:
+                    size = len(players[-1].name)
+        else:
+            print_message("Invalid Input")
+
+        if players:
+            title = f"Players: {len(players)}"
+            txt = ""
+            for player in players:
+                player_type = "Human"
+                if player.is_computer:
+                    player_type = "Computer"
+                
+                txt += f" {player.name} : {player_type} |"
+            print_message(txt[:-1], will_wait=False, title=title)
+            sleep(player_time)
+
+    # set player names to longest
+    for player in players:
+        set_name_spacing(player, size)
+    
+    return players
 
 def turn(game):
     current_player = game.players[game.current_turn]
@@ -111,7 +170,7 @@ def print_card_dealing(players):
         print_all_players(players, length = i + 1)
         sleep(deal_time)
 
-def print_message(txt, cards = [], hide_cards = False, will_wait = True):
+def print_message(txt, cards = [], hide_cards = False, will_wait = True, title=""):
     if cards:
         join = " | "
         hidden = "[?]"
@@ -122,7 +181,8 @@ def print_message(txt, cards = [], hide_cards = False, will_wait = True):
         txt = txt[:-len(join)]
     
     sep = "-" * len(txt)
-    print(f"\n\n{sep}\n{txt}\n{sep}\n\n")
+    title += "\n"
+    print(f"\n\n{title}{sep}\n{txt}\n{sep}\n\n")
     if will_wait:
         wait()
 

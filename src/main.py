@@ -1,5 +1,4 @@
 from blackjack import *
-from player import *
 from ui import *
 
 rules = {
@@ -18,19 +17,9 @@ rules = {
 }
 
 def main():
-    # Placeholder
-    players = [Player("CPU-1", True), Player("CPU-2", True), Player("CPU-3", True), Player("Player", False)]
-    # players = [Player("Player", False), Player("Player 2", False), Player("Player 3", False)]
-
-    # match player names to longest
-    names = [player.name for player in players]
-    size = len(max(names, key = lambda x : len(x)))
-    for player in players:
-        set_name_spacing(player, size)
-
     # pick rules
 
-    # create players
+    players = create_players()
     
     game = Blackjack(players, rules)
     print_card_dealing(game.players)
