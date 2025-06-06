@@ -5,8 +5,6 @@ from deck import Suits
 
 # Menu Timings
 deal_time = 0.3
-message_time = 0.8
-state_time = 0.7
 
 # Menus
 
@@ -16,7 +14,6 @@ def turn(game):
 
     while True:
         print_state(game)
-        sleep(state_time)
 
         try:
             card = int(input("Enter Move ( 0 - Pickup ): "))
@@ -54,7 +51,7 @@ def pick_suit_menu(game):
         count += 1
 
     while True:
-        print_message(suit_txt)
+        print_message(suit_txt, will_wait=False)
 
         try:
             choice = int(input("Enter Suit: "))
@@ -74,14 +71,14 @@ def pick_suit_menu(game):
 
 def non_playable_turn(game, computer = False):
     print_state(game)
-    sleep(state_time)
+    wait()
     if game.status["skip"]:
         game.play_turn()
     elif computer:
         current_player = game.players[game.current_turn]
         picked_up = current_player.computer_turn(game)
         if picked_up:
-            print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup)
+            print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup, hide_cards=True)
         else:
             print_message(f"{current_player.name} Played: " + str(game.top_card))
         
@@ -106,7 +103,7 @@ def print_state(game):
     status += "  - " + direction
 
     spacing = "=" * len(status)
-    print(f"{spacing}\n{status}\n{spacing}")
+    print(f"\n{spacing}\n{status}\n{spacing}")
     print_all_players(game.players, current_turn=game.current_turn)
 
 def print_card_dealing(players):
@@ -114,16 +111,20 @@ def print_card_dealing(players):
         print_all_players(players, length = i + 1)
         sleep(deal_time)
 
-def print_message(txt, cards = []):
+def print_message(txt, cards = [], hide_cards = False, will_wait = True):
     if cards:
         join = " | "
+        hidden = "[?]"
         for card in cards:
+            if hide_cards:
+                card = hidden
             txt += str(card) + join
         txt = txt[:-len(join)]
     
     sep = "-" * len(txt)
     print(f"\n\n{sep}\n{txt}\n{sep}\n\n")
-    sleep(message_time)
+    if will_wait:
+        wait()
 
 def print_winner(name):
     txt = f"!!! {name} Wins !!!"
@@ -189,3 +190,6 @@ def get_str_player(player, hide = False, hand = None, selectable = False):
     if selectable:
         txt = sel_txt[:-len(sep)] + "\n" + txt
     return txt[:-len(sep)]
+
+def wait():
+    input("Press Enter to Continue ")
