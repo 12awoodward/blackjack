@@ -72,10 +72,19 @@ def pick_suit_menu(game):
 
 # Print UI
 
-def skip_turn(game):
+def non_playable_turn(game, computer = False):
     print_state(game)
     sleep(state_time)
-    game.play_turn()
+    if game.status["skip"]:
+        game.play_turn()
+    elif computer:
+        current_player = game.players[game.current_turn]
+        picked_up = current_player.computer_turn(game)
+        if picked_up:
+            print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup)
+        else:
+            print_message(f"{current_player.name} Played: " + str(game.top_card))
+        
 
 def print_state(game):
     top_card = game.top_card

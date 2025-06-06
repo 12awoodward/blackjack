@@ -1,3 +1,7 @@
+from random import choice
+
+from deck import Suits
+
 # card sort key
 def card_sort(card):
     val = card.num.value.strip()
@@ -33,3 +37,34 @@ class Player:
 
     def play_card(self, card_index):
         return self.hand.pop(card_index)
+    
+    def computer_turn(self, game):
+        playable = []
+        suit_count = {}
+        
+        # check which cards in hand can be played
+        for i in range(len(self.hand)):
+            if game.can_play_card(self.hand[i]):
+                playable.append(i)
+            
+            # keep count of suits in hand
+            if self.hand[i].suit.name in suit_count:
+                suit_count[self.hand[i].suit.name] += 1
+            else:
+                suit_count[self.hand[i].suit.name] = 1
+        
+        move = -1
+        if playable:
+            move = choice(playable)
+
+        result = game.play_turn(move)
+
+        # played suit change
+        if result == 2:
+            # find most common suit in hand
+            suit = max(suit_count, key = suit_count.get)
+            game.pick_suit(Suits[suit])
+        
+        if move == -1:
+            return True
+        return False
