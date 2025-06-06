@@ -5,6 +5,12 @@ from player import *
 from card import *
 from deck import Suits
 
+# Menu Timings
+deal_time = 0.3
+message_time = 0.8
+state_time = 0.7
+
+
 default = {
     "all" : {
         "A" : ["suit"],
@@ -33,7 +39,12 @@ def print_message(txt, cards = []):
     
     sep = "-" * len(txt)
     print(f"\n\n{sep}\n{txt}\n{sep}\n\n")
-    sleep(0.5)
+    sleep(message_time)
+
+def print_winner(name):
+    txt = f"!!! {name} Wins !!!"
+    marking = "=" * len(txt)
+    print(f"\n{marking}\n{txt}\n{marking}\n")
 
 def get_str_player(player, hide = False, hand = None, selectable = False):
     if hand is None:
@@ -86,7 +97,7 @@ def print_all_players(players, current_turn = -1, length = None):
 def print_card_dealing(players):
     for i in range(len(players[0].hand)):
         print_all_players(players, length = i + 1)
-        sleep(0.3)
+        sleep(deal_time)
 
 def print_state(game):
     top_card = game.top_card
@@ -116,8 +127,9 @@ def pick_suit_menu(game):
     suit_list = []
     count = 1
     for suit in Suits:
-        suit_txt += f" {count}) {suit} "
+        suit_txt += f" {count}) {suit.value} "
         suit_list.append(suit)
+        count += 1
 
     while True:
         print_message(suit_txt)
@@ -142,10 +154,10 @@ def turn(game):
 
     while True:
         print_state(game)
-        sleep(0.3)
+        sleep(state_time)
 
         try:
-            card = int(input("Enter Move: "))
+            card = int(input("Enter Move ( 0 - Pickup ): "))
         except ValueError:
             print_message("Invalid Move")
             continue
@@ -184,9 +196,16 @@ def main():
     print_card_dealing(game.players)
 
     while not game.game_over:
-        # check if human can play
-        turn(game)
+        current_player = game.players[game.current_turn]
+        if current_player.is_computer:
+            pass
+        elif game.status["skip"]:
+            print_state(game)
+            sleep(state_time)
+            game.play_turn()
+        else:
+            turn(game)
     
-    print(f"{game.players[game.current_turn].name} Wins!")
+    print_winner(game.players[game.current_turn].name)
 
 main()

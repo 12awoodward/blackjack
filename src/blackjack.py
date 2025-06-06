@@ -100,6 +100,11 @@ class Blackjack:
                     return True
             
         return False
+    
+    def pick_suit(self, suit):
+        if self.status["suit"] == "set":
+            self.status["suit"] = suit.name
+            self.next_turn()
 
     def apply_card_effects(self, card):
         for effect in card.effects:
