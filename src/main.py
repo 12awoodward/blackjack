@@ -46,12 +46,15 @@ def print_winner(name):
     marking = "=" * len(txt)
     print(f"\n{marking}\n{txt}\n{marking}\n")
 
+# print("          _1__|__2__|__3__|__4__|__5__|__6__|__7_")
+# print("Player 3:  8♠ |  3♡ |  Q♡ |  2♢ | 10♢ |  J♢ |  4♣")
 def get_str_player(player, hide = False, hand = None, selectable = False):
     if hand is None:
         hand = player.hand
 
-    txt = player.display_name + ": "
-    sep = " | "
+    txt = player.display_name + ":"
+    sel_txt = " " * len(txt)
+    sep = "|"
     hidden = "[?]"
     count = 1
 
@@ -59,11 +62,15 @@ def get_str_player(player, hide = False, hand = None, selectable = False):
         card_str = str(card)
         if hide:
             card_str = hidden
-        if selectable:
-            txt += f"{count}) "
-            count += 1
-        txt += card_str + sep
+        txt += f" {card_str} {sep}"
 
+        if selectable:
+            space = "_" * (4 - len(str(count)))
+            sel_txt += f"{space}{count}_{sep}"
+            count += 1
+
+    if selectable:
+        txt = sel_txt[:-len(sep)] + "\n" + txt
     return txt[:-len(sep)]
 
 def print_all_players(players, current_turn = -1, length = None):
@@ -81,9 +88,10 @@ def print_all_players(players, current_turn = -1, length = None):
             # only show hands up to length
             txt = get_str_player(players[i], players[i].is_computer, players[i].hand[:length], selectable)
         
-        #keep track of longest line
-        if len(txt) > size:
-            size = len(txt)
+        #keep track of longest line - ignore extra selectable line
+        line_len = len(txt.split("\n")[0])
+        if line_len > size:
+            size = line_len
         
         player_str.append(txt)
     
@@ -170,7 +178,7 @@ def turn(game):
         turn_result = game.play_turn(card)
         if turn_result == 0:
             # turn fail
-            print_message(f"{current_player.name} Cannot Play: {current_player.hand[card]}")
+            print_message(f"!!! {current_player.name} Cannot Play: {current_player.hand[card]} !!!")
         else:
             # turn success
             if card < 0:

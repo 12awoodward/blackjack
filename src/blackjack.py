@@ -77,6 +77,11 @@ class Blackjack:
     def can_play_card(self, card):
         # if no pickup
         if self.status["pickup"] == 0:
+
+            # suit change can be played on any card
+            if card.is_suit_change:
+                return True
+            
             # if suit was not changed
             if self.status["suit"] is None:
                 if card.suit == self.top_card.suit or card.num == self.top_card.num:
@@ -89,6 +94,11 @@ class Blackjack:
                 
         # if there is pickup and is a pickup card
         elif card.is_pickup:
+            
+            # suit change can be played on any card
+            if card.is_suit_change:
+                return True
+            
             # suit was not changed
             if self.status["suit"] is None:
                 if card.suit == self.top_card.suit or card.num == self.top_card.num:
