@@ -1,1 +1,4 @@
 __pycache__/
+
+/rules/*
+!/rules/default.txt
