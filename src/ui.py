@@ -3,6 +3,7 @@ from time import sleep
 from player import *
 from card import *
 from deck import Suits
+from rule_files import get_rule_name
 
 # Menu Timings
 deal_time = 0.3
@@ -10,6 +11,25 @@ player_time = 0.7
 
 
 # Menus
+
+
+def pick_rules(rule_list):
+    choice = None
+    rule_txt = "\n\n"
+    count = 1
+
+    for rule in rule_list:
+        rule_txt += f"({count}) {get_rule_name(rule)}\n"
+        count += 1
+
+    while choice is None:
+        print(rule_txt)
+
+        choice = get_player_choice(1, len(rule_list), "Pick Rules To Play With: ")
+        if choice is None:
+            print_message("Invalid Choice")
+    
+    return rule_list[choice - 1]
 
 
 def set_player_name():
@@ -28,9 +48,9 @@ def set_player_name():
 def create_players():
     players = []
     size = 0
+    menu_txt = "\n\n1) Add Human Player\n2) Add Computer Player\n0) Start Game\n"
 
     while True:
-        menu_txt = "\n\n1) Add Human Player\n2) Add Computer Player\n0) Start Game\n"
         print(menu_txt)
 
         option = get_player_choice(0, 2, "Add Player? : ")
