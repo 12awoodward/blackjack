@@ -2,3 +2,4 @@ __pycache__/
 
 /rules/*
 !/rules/default.txt
+!/rules/no_effects.txt
