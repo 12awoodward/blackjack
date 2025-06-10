@@ -59,7 +59,12 @@ def get_valid_effect_str():
     return effect_alias.keys()
 
 def load_rules(rule_path):
-    rules = get_file_contents(rule_path).split("\n")
+    rules = get_file_contents(rule_path).strip()
+    # no rules
+    if len(rules) == 0:
+        return {}
+
+    rules = rules.split("\n")
     valid_suits = get_valid_suit_str()
     valid_nums = get_valid_number_str()
     valid_effect = get_valid_effect_str()
@@ -69,7 +74,7 @@ def load_rules(rule_path):
         rule_parts = rule.lower().split("|")
 
         if len(rule_parts) != 3:
-            print(f"Unknown Rule: {rule}")
+            print(f"\nUnknown Rule: {rule}")
             continue
 
         suit = rule_parts[0]
@@ -77,15 +82,15 @@ def load_rules(rule_path):
         rule_effect = rule_parts[2].split(":")[0]
 
         if suit not in valid_suits:
-            print(f"Unknown Rule: {rule}")
+            print(f"\nUnknown Rule: {rule}")
             continue
 
         if num not in valid_nums:
-            print(f"Unknown Rule: {rule}")
+            print(f"\nUnknown Rule: {rule}")
             continue
 
         if rule_effect not in valid_effect:
-            print(f"Unknown Rule: {rule}")
+            print(f"\nUnknown Rule: {rule}")
             continue
 
         if suit not in rule_set:

@@ -24,7 +24,7 @@ This project will allow you to play Blackjack in the CLI against a number of Com
 
 ## Creating Rules
 
-You can create a set of rules by adding them to a .txt file in the rules directory. The file should have 1 rule per line.
+You can create a set of rules by adding them to a `.txt` file in the rules directory. The file should have 1 rule per line.
 
 Each rule should have 3 parts: the suit, number, and effect. Each part should be separated by a vertical bar `|`. Rules are not case sensitive.
 
@@ -57,7 +57,7 @@ The effect value will add an effect to the cards specified by the rule.
 - `direction` - When played, the direction of play is switched.
 - `skip` - When played, the next players turn is skipped.
 - `pickup_add:` - When played, adds the amount specified to the number of cards the next player will need to pickup.
-- `pickup_set:` - When played, sets the current pickup count to the amount specified.
+- `pickup_set:` - When played, sets the current pickup count to the amount specified, ignoring the current amount.
 
 `pickup_add:` and `pickup_set:` will need a number added after the rule to set the value the rule will apply.
 
