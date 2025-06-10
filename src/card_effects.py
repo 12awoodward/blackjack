@@ -14,9 +14,9 @@ def pickup_set(status, amount):
     status["pickup"] = amount
 
 effect_alias = {
-    "suit": change_suit,
-    "direction": change_direction,
-    "skip": skip_turn,
-    "pickup_add": pickup_add,
-    "pickup_set": pickup_set,
+    "suit": ("suit", change_suit),
+    "direction": ("direction", change_direction),
+    "skip": ("skip", skip_turn),
+    "pickup_add": ("pickup", pickup_add),
+    "pickup_set": ("pickup", pickup_set),
 }

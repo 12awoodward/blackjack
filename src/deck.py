@@ -40,8 +40,6 @@ class Deck:
                     
                 for num in Numbers:
                     effects = []
-                    is_pickup = False
-                    is_suit_change = False
                     num_str = num.value.strip()
                     suit_str = suit.name.lower()
 
@@ -49,37 +47,28 @@ class Deck:
                     for key in key_check:
                         if key in self.rules:
                             if num_str in self.rules[key]:
-                                is_pickup, is_suit_change, effect_funcs = self.set_card_effects(self.rules[key][num_str])
-                                effects += effect_funcs
+                                effects += self.set_card_effects(self.rules[key][num_str])
                     
-                    self.deck.append(Card(suit, num, effects, is_pickup, is_suit_change))
+                    self.deck.append(Card(suit, num, effects))
 
         self.shuffle_deck()
     
     def set_card_effects(self, effects):
         effect_funcs = []
-        pickup = False # track if pickup rule is set
-        suit_change = False
+
         for effect in effects:
             effect = effect.split(":")
             effect_name = effect[0]
 
-            if "pickup" in effect_name:
-                pickup = True
-            
-            if "suit" in effect_name:
-                suit_change = True
-
             if len(effect) > 1:
                 effect_arg = int(effect[1])
-                effect_func = lambda status: effect_alias[effect_name](status, effect_arg)
+                effect_func = effect_alias[effect_name]
+                effect_func = (effect_func[0], lambda status: effect_func[1](status, effect_arg))
                 effect_funcs.append(effect_func)
             else:
                 effect_funcs.append(effect_alias[effect_name])
 
-        return pickup, suit_change, effect_funcs
-            
-
+        return effect_funcs
 
     def draw_card(self, count = 1):
         draw = []
