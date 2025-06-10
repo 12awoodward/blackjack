@@ -18,11 +18,13 @@ default = {
     },
 }
 
+
 def is_rule_dir_valid(rule_dir):
     if os.path.exists(rule_dir):
         if len(os.listdir(rule_dir)) > 0:
             return True
     return False
+
 
 def get_all_rule_files(rule_dir):
     rule_files = []
@@ -36,18 +38,22 @@ def get_all_rule_files(rule_dir):
 
     return rule_files
 
+
 def get_rule_name(rule_path):
     return os.path.splitext(os.path.basename(rule_path))[0].replace("_", " ")
+
 
 def get_file_contents(path):
     with open(path, "r") as file:
         return file.read()
-    
+
+
 def get_valid_number_str():
     options = []
     for num in Numbers:
         options.append(num.value.strip().lower())
     return options
+
 
 def get_valid_suit_str():
     options = ["all", "black", "red"]
@@ -55,8 +61,10 @@ def get_valid_suit_str():
         options.append(suit.name.lower())
     return options
 
+
 def get_valid_effect_str():
     return effect_alias.keys()
+
 
 def load_rules(rule_path):
     rules = get_file_contents(rule_path).strip()

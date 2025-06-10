@@ -114,6 +114,8 @@ def turn(game):
         else:
             # turn success
             if card < 0:
+                if game.was_deck_added():
+                    print_message("Not enough Cards: New Deck Added")
                 print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup)
             else:
                 print_message(f"{current_player.name} Played: " + str(game.top_card))
@@ -162,6 +164,8 @@ def non_playable_turn(game, computer = False):
         picked_up = current_player.computer_turn(game)
 
         if picked_up:
+            if game.was_deck_added():
+                    print_message("Not enough Cards: New Deck Added")
             print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup, hide_cards=True)
 
         else:

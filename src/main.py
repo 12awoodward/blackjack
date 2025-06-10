@@ -2,7 +2,7 @@ from rule_files import *
 from blackjack import *
 from ui import *
 
-def main():
+def game_setup():
     rules = default
     rule_dir_path = "rules"
 
@@ -22,8 +22,17 @@ def main():
         print_message("Loaded Default Rules")
 
     players = create_players()
+
+    # set hand size
+    hand_size = 7
+
+    # set deck number
+    decks = (((hand_size * len(players)) + 20) // 52) + 1
     
-    game = Blackjack(players, rules)
+    return Blackjack(players, rules, decks, hand_size)
+
+
+def game_loop(game):
     print_card_dealing(game.players)
 
     while not game.game_over:
@@ -36,5 +45,9 @@ def main():
             turn(game)
     
     print_winner(game.players[game.current_turn].name)
+
+
+def main():
+    game_loop(game_setup())
 
 main()

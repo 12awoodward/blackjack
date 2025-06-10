@@ -18,6 +18,7 @@ def card_sort(card):
             val = int(val)
     return (card.suit.value, val)
 
+
 class Player:
     def __init__(self, name, is_computer):
         self.name = name
@@ -27,16 +28,20 @@ class Player:
         self.hand = []
         self.last_pickup = []
 
+
     def take_cards(self, cards):
         self.hand += cards
         self.last_pickup = cards.copy()
         self.sort_hand()
 
+
     def sort_hand(self):
         self.hand.sort(key = card_sort)
 
+
     def play_card(self, card_index):
         return self.hand.pop(card_index)
+
     
     def computer_turn(self, game):
         playable = []

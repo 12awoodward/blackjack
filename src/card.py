@@ -10,6 +10,7 @@ class Card:
 
         self.set_effects(effects)
 
+
     def set_effects(self, effects):
         for effect in effects:
             self.effects.append(effect[1])
@@ -19,6 +20,7 @@ class Card:
             
             if effect[0] == "pickup":
                 self.is_pickup = True
+
 
     def __repr__(self):
         return f"{self.num.value}{self.suit.value}"

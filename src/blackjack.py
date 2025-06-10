@@ -1,10 +1,12 @@
 from deck import *
 from player import *
 
+
 class Blackjack:
-    def __init__(self, players, rules):
+    def __init__(self, players, rules, decks = 1, hand_size = 7):
         self.game_over = False
-        self.deck = Deck(rules)
+        self.deck = Deck(rules, decks)
+        self.deck_count = self.deck.deck_count
         self.players = players
         self.current_turn = 0
         self.status = {
@@ -14,13 +16,15 @@ class Blackjack:
             "suit" : None,
         }
 
-        self.initial_deal()
+        self.initial_deal(hand_size)
         self.top_card = self.deck.draw_card()[0]
+
 
     def initial_deal(self, amount = 7):
         for player in self.players:
             player.take_cards(self.deck.draw_card(amount))
-    
+
+
     def next_turn(self):
         self.current_turn += self.status["direction"]
 
@@ -28,6 +32,7 @@ class Blackjack:
             self.current_turn = len(self.players) - 1
         elif self.current_turn >= len(self.players):
             self.current_turn = 0
+
 
     # returns 0 = turn fail, 1 = turn success, 2 = turn success - change suit
     def play_turn(self, card_index = -1):
@@ -74,6 +79,7 @@ class Blackjack:
                 return 1
         return 0
 
+
     def can_play_card(self, card):
         # if no pickup
         if self.status["pickup"] == 0:
@@ -84,7 +90,8 @@ class Blackjack:
             return self.check_played_card(card)
             
         return False
-    
+
+
     def check_played_card(self, card):
         # suit change can be played on any card
         if card.is_suit_change:
@@ -102,10 +109,22 @@ class Blackjack:
             
         return False
     
+
+    def was_deck_added(self):
+        added = self.deck.deck_count - self.deck_count
+        
+        if added > 0:
+            self.deck_count += added
+            return True
+        else:
+            return False
+
+
     def pick_suit(self, suit):
         if self.status["suit"] == "set":
             self.status["suit"] = suit.name
             self.next_turn()
+
 
     def apply_card_effects(self, card):
         for effect in card.effects:

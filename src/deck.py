@@ -4,11 +4,13 @@ from random import shuffle
 from card import *
 from card_effects import *
 
+
 class Suits(Enum):
     SPADES = "\u2660"
     CLUBS = "\u2663"
     HEARTS = "\u2661"
     DIAMONDS = "\u2662"
+
 
 class Numbers(Enum):
     ACE = " A"
@@ -25,14 +27,20 @@ class Numbers(Enum):
     QUEEN = " Q"
     KING = " K"
 
+
 class Deck:
     def __init__(self, rules, deck_count = 1):
         self.deck = []
         self.rules = rules
+        self.deck_count = 0
+
         self.gen_deck(deck_count)
-    
+
+
     def gen_deck(self, deck_count = 1):
         for i in range(deck_count):
+            self.deck_count += 1
+            
             for suit in Suits:
                 color = "black"
                 if suit == Suits.HEARTS or suit == Suits.DIAMONDS:
@@ -53,6 +61,7 @@ class Deck:
 
         self.shuffle_deck()
     
+
     def set_card_effects(self, effects):
         effect_funcs = []
 
@@ -71,15 +80,22 @@ class Deck:
 
         return effect_funcs
 
+
     def draw_card(self, count = 1):
+        # not enough cards for pickup - add another deck
+        if count > len(self.deck):
+            self.gen_deck()
+
         draw = []
         for i in range(count):
             draw.append(self.deck.pop())
         return draw
-    
+
+
     def return_to_deck(self, card):
         self.deck.append(card)
         self.shuffle_deck()
-    
+
+
     def shuffle_deck(self):
         shuffle(self.deck)
