@@ -3,8 +3,17 @@ from blackjack import *
 from ui import *
 
 def main():
-    # pick rules
     rules = default
+    rule_dir_path = "rules"
+
+    if is_rule_dir_valid(rule_dir_path):
+        rule_list = get_all_rule_files(rule_dir_path)
+        if len(rule_list) == 0:
+            raise Exception("rules directory contains no .txt files")
+        print(rule_list)
+    
+    else:
+        print_message("No rules found / rules directory is invalid.\nUsing default rules.",)
 
     players = create_players()
     
