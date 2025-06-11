@@ -30,34 +30,6 @@ def pick_rules(rule_list):
     return rule_list[choice - 1]
 
 
-def set_hand_size():
-    size = None
-    minimum = 1
-    maximum = 50
-
-    while size is None:
-        size = get_player_choice(minimum, maximum, "\nSet Starting Hand Size: ")
-
-        if size is None:
-            print_message(f"Must Be Between {minimum} And {maximum}")
-
-    return size
-
-
-def set_deck_count(players, hand_size):
-    decks = None
-    minimum = (((hand_size * players) + 20) // 52) + 1
-    maximum = 19 # keep below 4 digit card count
-
-    while decks is None:
-        decks = get_player_choice(minimum, maximum, f"\nNumber Of Decks Included (Min: {minimum}): ")
-
-        if decks is None:
-            print_message(f"Must Be Between {minimum} And {maximum}")
-
-    return decks
-
-
 def set_player_name():
     name = ""
 
@@ -74,6 +46,7 @@ def create_players():
     players = []
     size = 0
     menu_txt = "\n\n1) Add Human Player\n2) Add Computer Player\n0) Start Game\n"
+    player_list = ""
 
     while True:
         # handle max players
@@ -101,24 +74,52 @@ def create_players():
             if len(players[-1].name) > size:
                 size = len(players[-1].name)
 
+            player_type = "Human"
+            if players[-1].is_computer:
+                player_type = "Computer"
+            
+            player_list += f" {players[-1].name} : {player_type} |"
+
         if players:
             title = f"Players: {len(players)}"
-            txt = ""
-
-            for player in players:
-                player_type = "Human"
-                if player.is_computer:
-                    player_type = "Computer"
-                
-                txt += f" {player.name} : {player_type} |"
-
-            print_message(txt[:-1], will_wait=False, title=title)
+            print_message(player_list[:-1], will_wait=False, title=title)
 
     # set player names to longest
     for player in players:
         set_name_spacing(player, size)
     
     return players
+
+
+def set_hand_size():
+    size = None
+    default = 7
+    minimum = 1
+    maximum = 50
+
+    while size is None:
+        print_message("Set Starting Hand Size", will_wait=False)
+        size = get_player_choice(minimum, maximum, f"Press Enter For Default ({default}): ", default)
+
+        if size is None:
+            print_message(f"Must Be Between {minimum} And {maximum}")
+
+    return size
+
+
+def set_deck_count(players, hand_size):
+    decks = None
+    minimum = (((hand_size * players) + 20) // 52) + 1
+    maximum = 19 # keep below 4 digit card count
+
+    while decks is None:
+        print_message("Number Of Decks Included", will_wait=False)
+        decks = get_player_choice(minimum, maximum, f"Press Enter For Minimum ({minimum}): ", minimum)
+
+        if decks is None:
+            print_message(f"Must Be Between {minimum} And {maximum}")
+
+    return decks
 
 
 def turn(game):
@@ -142,21 +143,24 @@ def turn(game):
 
         else:
             # turn success
-            if card < 0:
-                if game.was_deck_added():
-                    print_message("Not enough Cards: New Deck Added")
-                print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup)
-            else:
-                print_message(f"{current_player.name} Played: " + str(game.top_card))
-            
-            if turn_result == 2:
-                pick_suit_menu(game)
-
             break
+
+    if card < 0:
+        if game.was_deck_added():
+            print_message("Not enough Cards: New Deck Added")
+
+        print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup)
+
+    else:
+        print_message(f"{current_player.name} Played: " + str(game.top_card))
+    
+    if turn_result == 2:
+        pick_suit_menu(game)
 
 
 def pick_suit_menu(game):
     suit_txt = "Pick A Suit: "
+    choice = None
     suit_list = []
     count = 1
 
@@ -165,17 +169,17 @@ def pick_suit_menu(game):
         suit_list.append(suit)
         count += 1
 
-    while True:
+    while choice is None:
         print_message(suit_txt, will_wait=False)
 
         choice = get_player_choice(1, len(Suits), "Enter Suit: ")
+
         if choice is None:
             print_message("Invalid Choice")
             continue
 
-        choice -= 1
-        game.pick_suit(suit_list[choice])
-        break
+    choice -= 1
+    game.pick_suit(suit_list[choice])
 
 
 # Non Input Menus

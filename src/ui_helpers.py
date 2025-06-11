@@ -2,10 +2,16 @@ from card import *
 from deck import Suits
 
 
-def get_player_choice(min_val, max_val, prompt = ""):
+def get_player_choice(min_val, max_val, prompt = "", default = None):
+    choice = input(prompt)
+
     try:
-        choice = int(input(prompt))
+        choice = int(choice)
+    
     except ValueError:
+        if len(choice) == 0 and default != None:
+            return default
+
         return None
     
     if choice > max_val or choice < min_val:
