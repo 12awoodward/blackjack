@@ -48,6 +48,11 @@ def create_players():
     menu_txt = "\n\n1) Add Human Player\n2) Add Computer Player\n0) Start Game\n"
 
     while True:
+        # handle max players
+        if len(players) == 10:
+            print_message("Maximum Players Reached")
+            break
+
         print(menu_txt)
 
         option = get_player_choice(0, 2, "Add Player? : ")
