@@ -67,8 +67,8 @@ def get_valid_effect_str():
 
 
 def print_rule_issue(rule, issue):
-    print(f"\nUnknown Rule: {rule}")
-    print(f"\n     Error: {issue}")
+    print(f"\n\nUnknown Rule: {rule}")
+    print(f"     Error: {issue}")
 
 
 def load_rules(rule_path):
