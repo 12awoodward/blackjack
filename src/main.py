@@ -23,11 +23,9 @@ def game_setup():
 
     players = create_players()
 
-    # set hand size
-    hand_size = 7
+    hand_size = set_hand_size()
 
-    # set deck number
-    decks = (((hand_size * len(players)) + 20) // 52) + 1
+    decks = set_deck_count(len(players), hand_size)
     
     return Blackjack(players, rules, decks, hand_size)
 

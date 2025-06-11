@@ -30,6 +30,34 @@ def pick_rules(rule_list):
     return rule_list[choice - 1]
 
 
+def set_hand_size():
+    size = None
+    minimum = 1
+    maximum = 50
+
+    while size is None:
+        size = get_player_choice(minimum, maximum, "\nSet Starting Hand Size: ")
+
+        if size is None:
+            print_message(f"Must Be Between {minimum} And {maximum}")
+
+    return size
+
+
+def set_deck_count(players, hand_size):
+    decks = None
+    minimum = (((hand_size * players) + 20) // 52) + 1
+    maximum = 19 # keep below 4 digit card count
+
+    while decks is None:
+        decks = get_player_choice(minimum, maximum, f"\nNumber Of Decks Included (Min: {minimum}): ")
+
+        if decks is None:
+            print_message(f"Must Be Between {minimum} And {maximum}")
+
+    return decks
+
+
 def set_player_name():
     name = ""
 
