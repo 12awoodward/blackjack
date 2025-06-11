@@ -8,10 +8,10 @@ class Card:
         self.is_pickup = False
         self.is_suit_change = False
 
-        self.set_effects(effects)
+        self.__set_effects(effects)
 
 
-    def set_effects(self, effects):
+    def __set_effects(self, effects):
         for effect in effects:
             self.effects.append(effect[1])
 

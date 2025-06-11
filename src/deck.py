@@ -1,8 +1,8 @@
 from enum import Enum
 from random import shuffle
 
-from card import *
-from card_effects import *
+from card import Card
+from card_effects import effect_alias
 
 
 class Suits(Enum):
@@ -30,14 +30,14 @@ class Numbers(Enum):
 
 class Deck:
     def __init__(self, rules, deck_count = 1):
-        self.deck = []
-        self.rules = rules
+        self.__rules = rules
+        self.__deck = []
         self.deck_count = 0
 
-        self.gen_deck(deck_count)
+        self.__gen_deck(deck_count)
 
 
-    def gen_deck(self, deck_count = 1):
+    def __gen_deck(self, deck_count = 1):
         for i in range(deck_count):
             self.deck_count += 1
             
@@ -53,16 +53,16 @@ class Deck:
 
                     key_check = ["all", color, suit_str]
                     for key in key_check:
-                        if key in self.rules:
-                            if num_str in self.rules[key]:
-                                effects += self.set_card_effects(self.rules[key][num_str])
+                        if key in self.__rules:
+                            if num_str in self.__rules[key]:
+                                effects += self.__set_card_effects(self.__rules[key][num_str])
                     
-                    self.deck.append(Card(suit, num, effects))
+                    self.__deck.append(Card(suit, num, effects))
 
-        self.shuffle_deck()
+        self.__shuffle_deck()
     
 
-    def set_card_effects(self, effects):
+    def __set_card_effects(self, effects):
         effect_funcs = []
 
         for effect in effects:
@@ -83,19 +83,19 @@ class Deck:
 
     def draw_card(self, count = 1):
         # not enough cards for pickup - add another deck
-        if count > len(self.deck):
-            self.gen_deck()
+        if count > len(self.__deck):
+            self.__gen_deck()
 
         draw = []
         for i in range(count):
-            draw.append(self.deck.pop())
+            draw.append(self.__deck.pop())
         return draw
 
 
     def return_to_deck(self, card):
-        self.deck.append(card)
-        self.shuffle_deck()
+        self.__deck.append(card)
+        self.__shuffle_deck()
 
 
-    def shuffle_deck(self):
-        shuffle(self.deck)
+    def __shuffle_deck(self):
+        shuffle(self.__deck)

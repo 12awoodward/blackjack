@@ -3,7 +3,7 @@ import os
 from deck import Suits, Numbers
 from card_effects import effect_alias
 
-default = {
+default_rules = {
     "all" : {
         "A" : ["suit"],
         "2" : ["pickup_add:2"],

@@ -1,8 +1,8 @@
 from time import sleep
 
 from ui_helpers import *
-from player import *
-from rule_files import get_rule_name
+from player import Player
+from rule_files import *
 
 # Menu Timings
 deal_time = 0.3
@@ -183,6 +183,24 @@ def pick_suit_menu(game):
 
 
 # Non Input Menus
+
+
+def get_rules(rule_dir_path):
+    if is_rule_dir_valid(rule_dir_path):
+        rule_list = get_all_rule_files(rule_dir_path)
+
+        if len(rule_list) == 0:
+            raise Exception("rules directory contains no .txt files")
+        
+        rule_file_path = pick_rules(rule_list)
+        rules = load_rules(rule_file_path)
+
+        print_message(f"Loaded '{get_rule_name(rule_file_path)}' From '{rule_file_path}'")
+        return rules
+    
+    print_message("No Rules Found / Rules Directory Is Invalid.", will_wait=False)
+    print_message("Loaded Default Rules")
+    return default_rules
 
 
 def non_playable_turn(game, computer = False):

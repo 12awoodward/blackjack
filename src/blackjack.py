@@ -1,12 +1,11 @@
-from deck import *
-from player import *
+from deck import Deck
 
 
 class Blackjack:
     def __init__(self, players, rules, decks = 1, hand_size = 7):
+        self.__deck = Deck(rules, decks)
+        self.__deck_count = self.__deck.deck_count
         self.game_over = False
-        self.deck = Deck(rules, decks)
-        self.deck_count = self.deck.deck_count
         self.players = players
         self.current_turn = 0
         self.status = {
@@ -16,16 +15,16 @@ class Blackjack:
             "suit" : None,
         }
 
-        self.initial_deal(hand_size)
-        self.top_card = self.deck.draw_card()[0]
+        self.__initial_deal(hand_size)
+        self.top_card = self.__deck.draw_card()[0]
 
 
-    def initial_deal(self, amount = 7):
+    def __initial_deal(self, amount = 7):
         for player in self.players:
-            player.take_cards(self.deck.draw_card(amount))
+            player.take_cards(self.__deck.draw_card(amount))
 
 
-    def next_turn(self):
+    def __next_turn(self):
         self.current_turn += self.status["direction"]
 
         if self.current_turn < 0:
@@ -44,7 +43,7 @@ class Blackjack:
             # turn was skipped
             if self.status["skip"]:
                 self.status["skip"] = False
-                self.next_turn()
+                self.__next_turn()
                 return 1
         
             current_player = self.current_player()
@@ -54,17 +53,17 @@ class Blackjack:
                 pickups = self.status["pickup"]
                 if pickups == 0:
                     pickups = 1
-                current_player.take_cards(self.deck.draw_card(pickups))
+                current_player.take_cards(self.__deck.draw_card(pickups))
                 self.status["pickup"] = 0
-                self.next_turn()
+                self.__next_turn()
                 return 1
 
             # player played a card
             card = current_player.hand[card_index]
             if self.can_play_card(card):
-                self.deck.return_to_deck(self.top_card)
+                self.__deck.return_to_deck(self.top_card)
                 self.top_card = current_player.play_card(card_index)
-                self.apply_card_effects(card)
+                self.__apply_card_effects(card)
 
                 # handle end game
                 if len(current_player.hand) == 0:
@@ -79,7 +78,7 @@ class Blackjack:
                 if self.status["suit"] is not None:
                     self.status["suit"] = None
 
-                self.next_turn()
+                self.__next_turn()
                 return 1
         return 0
 
@@ -87,16 +86,16 @@ class Blackjack:
     def can_play_card(self, card):
         # if no pickup
         if self.status["pickup"] == 0:
-            return self.check_played_card(card)
+            return self.__check_played_card(card)
                 
         # if there is pickup and is a pickup card
         elif card.is_pickup:
-            return self.check_played_card(card)
+            return self.__check_played_card(card)
             
         return False
 
 
-    def check_played_card(self, card):
+    def __check_played_card(self, card):
         # suit change can be played on any card
         if card.is_suit_change:
             return True
@@ -115,10 +114,10 @@ class Blackjack:
     
 
     def was_deck_added(self):
-        added = self.deck.deck_count - self.deck_count
+        added = self.__deck.deck_count - self.__deck_count
         
         if added > 0:
-            self.deck_count += added
+            self.__deck_count += added
             return True
         else:
             return False
@@ -127,9 +126,9 @@ class Blackjack:
     def pick_suit(self, suit):
         if self.status["suit"] == "set":
             self.status["suit"] = suit.name
-            self.next_turn()
+            self.__next_turn()
 
 
-    def apply_card_effects(self, card):
+    def __apply_card_effects(self, card):
         for effect in card.effects:
             effect(self.status)

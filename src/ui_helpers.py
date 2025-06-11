@@ -1,4 +1,4 @@
-from card import *
+from card import Card
 from deck import Suits
 
 
@@ -26,6 +26,7 @@ def get_player_choice(min_val, max_val, prompt = "", default = None):
 def print_state(game):
     top_card = game.top_card
 
+    # if suit was changed, show top card as suit
     if game.status["suit"] is not None:
         suit = Suits[game.status["suit"]]
         top_card = Card(suit, top_card.num)
@@ -45,6 +46,7 @@ def print_state(game):
 
     spacing = "=" * len(status)
     print(f"\n{spacing}\n{status}\n{spacing}")
+
     print_all_players(game.players, current_turn=game.current_turn)
 
 
@@ -74,7 +76,7 @@ def print_all_players(players, current_turn = -1, length = None):
     # apply current player marking
     if current_turn != -1:
         marking = "-" * size
-        player_str[current_turn] = marking + "\n" + player_str[current_turn] + "\n" + marking
+        player_str[current_turn] = f"{marking}\n{player_str[current_turn]}\n{marking}"
 
     print("\n" + "\n\n".join(player_str) + "\n\n")
 
@@ -92,16 +94,15 @@ def get_str_player(player, hide = False, hand = None, selectable = False):
         hand = player.hand
 
     txt = player.display_name + ":"
-    sel_txt = " " * len(txt)
+    sel_txt = " " * len(txt) # empty space above name
     sep = "|"
     hidden = "[?]"
     count = 1
 
     for card in hand:
-        card_str = str(card)
         if hide:
-            card_str = hidden
-        txt += f" {card_str} {sep}"
+            card = hidden
+        txt += f" {str(card)} {sep}"
 
         if selectable:
             space = "_" * (4 - len(str(count)))

@@ -32,10 +32,10 @@ class Player:
     def take_cards(self, cards):
         self.hand += cards
         self.last_pickup = cards.copy()
-        self.sort_hand()
+        self.__sort_hand()
 
 
-    def sort_hand(self):
+    def __sort_hand(self):
         self.hand.sort(key = card_sort)
 
 
