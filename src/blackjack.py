@@ -29,6 +29,7 @@ class Blackjack:
 
         if self.current_turn < 0:
             self.current_turn = len(self.players) - 1
+
         elif self.current_turn >= len(self.players):
             self.current_turn = 0
 
@@ -40,6 +41,7 @@ class Blackjack:
     # returns 0 = turn fail, 1 = turn success, 2 = turn success - change suit
     def play_turn(self, card_index = -1):
         if not self.game_over:
+
             # turn was skipped
             if self.status["skip"]:
                 self.status["skip"] = False
@@ -51,10 +53,12 @@ class Blackjack:
             # player chose pickup
             if card_index == -1:
                 pickups = self.status["pickup"]
+                self.status["pickup"] = 0
+
                 if pickups == 0:
                     pickups = 1
+
                 current_player.take_cards(self.__deck.draw_card(pickups))
-                self.status["pickup"] = 0
                 self.__next_turn()
                 return 1
 
@@ -70,7 +74,7 @@ class Blackjack:
                     self.game_over = True
                     return 1 # dont do next turn - current player is winner
                 
-                # handle suit change
+                # handle suit change played
                 if self.status["suit"] == "set":
                     return 2
                 
