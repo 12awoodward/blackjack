@@ -6,7 +6,6 @@ from rule_files import get_rule_name
 
 # Menu Timings
 deal_time = 0.3
-player_time = 0.7
 
 
 # Player Input Menus
@@ -40,8 +39,6 @@ def set_player_name():
 
         name = input("\nEnter New Players Name: ")
 
-    print(f"\nPlayer '{name}' Added\n")
-    sleep(player_time)
     return name
 
 
@@ -83,7 +80,6 @@ def create_players():
                 txt += f" {player.name} : {player_type} |"
 
             print_message(txt[:-1], will_wait=False, title=title)
-            sleep(player_time)
 
     # set player names to longest
     for player in players:
@@ -93,7 +89,7 @@ def create_players():
 
 
 def turn(game):
-    current_player = game.players[game.current_turn]
+    current_player = game.current_player()
     hand_size = len(current_player.hand)
 
     while True:
@@ -160,7 +156,7 @@ def non_playable_turn(game, computer = False):
         game.play_turn()
 
     elif computer:
-        current_player = game.players[game.current_turn]
+        current_player = game.current_player()
         picked_up = current_player.computer_turn(game)
 
         if picked_up:

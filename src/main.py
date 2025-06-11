@@ -36,7 +36,7 @@ def game_loop(game):
     print_card_dealing(game.players)
 
     while not game.game_over:
-        current_player = game.players[game.current_turn]
+        current_player = game.current_player()
 
         if current_player.is_computer or game.status["skip"]:
             non_playable_turn(game, current_player.is_computer)
@@ -44,7 +44,7 @@ def game_loop(game):
         else:
             turn(game)
     
-    print_winner(game.players[game.current_turn].name)
+    print_winner(game.current_player().name)
 
 
 def main():

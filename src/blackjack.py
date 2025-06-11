@@ -33,6 +33,10 @@ class Blackjack:
         elif self.current_turn >= len(self.players):
             self.current_turn = 0
 
+    
+    def current_player(self):
+        return self.players[self.current_turn]
+
 
     # returns 0 = turn fail, 1 = turn success, 2 = turn success - change suit
     def play_turn(self, card_index = -1):
@@ -43,7 +47,7 @@ class Blackjack:
                 self.next_turn()
                 return 1
         
-            current_player = self.players[self.current_turn]
+            current_player = self.current_player()
             
             # player chose pickup
             if card_index == -1:
