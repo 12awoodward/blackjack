@@ -5,6 +5,7 @@ def game_setup():
     rules_path = "rules"
 
     rules = get_rules(rules_path)
+    print(rules)
 
     players = create_players()
 

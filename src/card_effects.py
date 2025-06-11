@@ -25,3 +25,9 @@ effect_alias = {
     "pickup_add": ("pickup", pickup_add),
     "pickup_set": ("pickup", pickup_set),
 }
+
+
+def effect_has_arg(effect_name):
+    if "pickup" in effect_name:
+        return True
+    return False

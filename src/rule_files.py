@@ -1,7 +1,7 @@
 import os
 
 from deck import Suits, Numbers
-from card_effects import effect_alias
+from card_effects import effect_alias, effect_has_arg
 
 default_rules = {
     "all" : {
@@ -66,6 +66,11 @@ def get_valid_effect_str():
     return effect_alias.keys()
 
 
+def print_rule_issue(rule, issue):
+    print(f"\nUnknown Rule: {rule}")
+    print(f"\n     Error: {issue}")
+
+
 def load_rules(rule_path):
     rules = get_file_contents(rule_path).strip()
     # no rules
@@ -75,30 +80,47 @@ def load_rules(rule_path):
     rules = rules.split("\n")
     valid_suits = get_valid_suit_str()
     valid_nums = get_valid_number_str()
-    valid_effect = get_valid_effect_str()
+    valid_effects = get_valid_effect_str()
     rule_set = {}
 
     for rule in rules:
         rule_parts = rule.lower().split("|")
 
         if len(rule_parts) != 3:
-            print(f"\nUnknown Rule: {rule}")
+            print_rule_issue(rule, "Not 3 Parts")
             continue
 
-        suit = rule_parts[0]
-        num = rule_parts[1]
-        rule_effect = rule_parts[2].split(":")[0]
+        suit = rule_parts[0].strip()
+        num = rule_parts[1].strip()
+        rule_effect = rule_parts[2].split(":")
+        effect_name = rule_effect[0].strip()
 
         if suit not in valid_suits:
-            print(f"\nUnknown Rule: {rule}")
+            print_rule_issue(rule, "Invalid Suit")
             continue
 
         if num not in valid_nums:
-            print(f"\nUnknown Rule: {rule}")
+            print_rule_issue(rule, "Invalid Number")
             continue
 
-        if rule_effect not in valid_effect:
-            print(f"\nUnknown Rule: {rule}")
+        if effect_name not in valid_effects:
+            print_rule_issue(rule, "Invalid Card Effect")
+            continue
+
+        if effect_has_arg(effect_name) and len(rule_effect) == 2:
+            effect_arg = rule_effect[1].strip()
+
+            try:
+                effect_arg = int(effect_arg)
+
+            except ValueError:
+                print_rule_issue(rule, "Effect Given Invalid Number")
+                continue
+
+            rule_effect[1] = str(effect_arg)
+        
+        elif effect_has_arg(effect_name) or len(rule_effect) != 1:
+            print_rule_issue(rule, "Effect Needs Number Value / Has Number Value When Not Needed")
             continue
 
         if suit not in rule_set:
@@ -108,6 +130,7 @@ def load_rules(rule_path):
         if num not in rule_set[suit]:
             rule_set[suit][num] = []
 
-        rule_set[suit][num].append(rule_parts[2])
+        rule_effect[0] = effect_name
+        rule_set[suit][num].append(":".join(rule_effect))
 
     return rule_set
