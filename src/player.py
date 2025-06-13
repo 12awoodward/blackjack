@@ -41,6 +41,11 @@ class Player:
 
     def play_card(self, card_index):
         return self.hand.pop(card_index)
+    
+
+    def reset_hand(self):
+        self.hand = []
+        self.last_pickup = []
 
     
     def computer_turn(self, game):

@@ -142,6 +142,21 @@ def pick_suit_menu():
     return Suits(suit_list[choice])
 
 
+def play_again():
+    play_txt = list_choices(["Quit Game", "Play Again"], "Play Another Game?")
+    error = single_line_message("Invalid Choice")
+    choice = None
+
+    while choice is None:
+        print(play_txt)
+        choice = get_player_choice(1, 2, "Play Again? : ")
+
+        if choice is None:
+            print(error)
+
+    return bool(choice - 1)
+
+
 def turn(game):
     current_player = game.current_player()
     state = game_state(game.top_card, game.status)
