@@ -4,9 +4,6 @@ from ui_helpers import *
 from player import Player
 from rule_files import *
 
-# Menu Timings
-deal_time = 0.1
-
 
 # Player Input Menus
 
@@ -128,77 +125,6 @@ def set_deck_count(player_count, hand_size):
     return decks
 
 
-def turn(game):
-    current_player = game.current_player()
-        # if current_player.is_computer or game.status["skip"]:
-            # non_playable_turn(game, current_player.is_computer)
-
-    hand_size = len(current_player.hand)
-
-    state = game_state(game.top_card, game.status)
-    player_list = all_player_hands(game.players, game.current_turn)
-    hand_options = hand_select(len(current_player.display_name), hand_size)
-    
-    player_list.insert(game.current_turn + 1, hand_options)
-    game_str = f"{state}\n{'\n'.join(player_list)}\n\n"
-
-    while True:
-        print(game_str)
-        card = get_player_choice(0, hand_size, "Enter Move ( 0 - Pickup ): ")
-
-        if card is None:
-            print(single_line_message("Invalid Move"))
-            continue
-
-        card -= 1
-        turn_result = game.play_turn(card)
-
-        if turn_result == 0:
-            # turn fail
-            print(single_line_message(f"!!! {current_player.name} Cannot Play: {current_player.hand[card]} !!!"))
-
-        else:
-            # turn success
-            break
-
-    if card < 0:
-        if game.was_deck_added():
-            print(single_line_message("Not enough Cards: New Deck Added"))
-
-        print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup))
-
-    else:
-        print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
-    
-    wait()
-    
-    if turn_result == 2:
-        game.pick_suit(pick_suit_menu())
-
-def non_playable_turn(game, computer = False):
-    game_str = game_state(game.top_card, game.status) + "\n"
-    game_str += "\n".join(all_player_hands(game.players, game.current_turn)) + "\n\n"
-    print(game_str)
-    wait()
-
-    if game.status["skip"]:
-        game.play_turn()
-
-    elif computer:
-        current_player = game.current_player()
-        picked_up = current_player.computer_turn(game)
-
-        if picked_up:
-            if game.was_deck_added():
-                    print(single_line_message("Not enough Cards: New Deck Added"))
-            print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup, hide_cards=True))
-
-        else:
-            print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
-        
-        wait()
-
-
 def pick_suit_menu():
     suit_list = [suit.value for suit in Suits]
     suit_txt = list_choices(suit_list, "Pick A Suit:")
@@ -214,6 +140,78 @@ def pick_suit_menu():
 
     choice -= 1
     return Suits(suit_list[choice])
+
+
+def turn(game):
+    current_player = game.current_player()
+    state = game_state(game.top_card, game.status)
+    player_list = all_player_hands(game.players, game.current_turn)
+
+    # Player Turn
+    if not(current_player.is_computer or game.status["skip"]):
+        hand_size = len(current_player.hand)
+        hand_options = hand_select(len(current_player.display_name), hand_size)
+        player_list.insert(game.current_turn + 1, hand_options)
+
+        game_str = f"{state}\n{'\n'.join(player_list)}\n\n"
+
+        while True:
+            print(game_str)
+            card = get_player_choice(0, hand_size, "Enter Move ( 0 - Pickup ): ")
+
+            if card is None:
+                print(single_line_message("Invalid Move"))
+                continue
+
+            card -= 1
+            turn_result = game.play_turn(card)
+
+            if turn_result == 0:
+                # turn fail
+                print(single_line_message(f"!!! {current_player.name} Cannot Play: {current_player.hand[card]} !!!"))
+
+            else:
+                # turn success
+                break
+
+        if card < 0:
+            if game.was_deck_added():
+                print(single_line_message("Not enough Cards: New Deck Added"))
+
+            print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup))
+
+        else:
+            print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
+        
+        wait()
+        
+        if turn_result == 2:
+            game.pick_suit(pick_suit_menu())
+
+    # Non Playable Turn
+    else:
+        game_str = f"{state}\n{'\n'.join(player_list)}\n\n"
+        print(game_str)
+        wait()
+
+        # Turn was Skipped
+        if game.status["skip"]:
+            game.play_turn()
+
+        # Computer Plays
+        else:
+            current_player = game.current_player()
+            picked_up = current_player.computer_turn(game)
+
+            if picked_up:
+                if game.was_deck_added():
+                        print(single_line_message("Not enough Cards: New Deck Added"))
+                print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup, hide_cards=True))
+
+            else:
+                print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
+            
+            wait()
 
 
 # Non Input Menus
@@ -243,6 +241,7 @@ def get_rules(rule_dir_path):
     
 
 def print_card_dealing(players):
+    deal_time = 0.1
     print()
     for i in range(len(players[0].hand)):
         for player in players:
