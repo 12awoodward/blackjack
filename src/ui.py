@@ -241,9 +241,17 @@ def get_rules(rule_dir_path):
     
 
 def print_card_dealing(players):
-    deal_time = 0.1
+    hand_size = len(players[0].hand)
+    deal_time = 0.05
+
+    # deal timings
+    if hand_size <= 25:
+        deal_time *= 2
+        if hand_size <= 10:
+            deal_time *= 2
+    
     print()
-    for i in range(len(players[0].hand)):
+    for i in range(hand_size):
         for player in players:
             print(player_hand(player.hand[:i+1], player.display_name, player.is_computer))
             sleep(deal_time)
