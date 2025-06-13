@@ -5,7 +5,7 @@ from player import Player
 from rule_files import *
 
 # Menu Timings
-deal_time = 0.3
+deal_time = 0.1
 
 
 # Player Input Menus
@@ -13,31 +13,29 @@ deal_time = 0.3
 
 def pick_rules(rule_list):
     choice = None
-    rule_txt = "\n\n"
-    count = 1
-
-    for rule in rule_list:
-        rule_txt += f"({count}) {get_rule_name(rule)}\n"
-        count += 1
+    rule_txt = list_choices([get_rule_name(rule) for rule in rule_list], "Available Rules")
+    error = single_line_message("Invalid Choice")
 
     while choice is None:
         print(rule_txt)
-
         choice = get_player_choice(1, len(rule_list), "Pick Rules To Play With: ")
+
         if choice is None:
-            print_message("Invalid Choice")
+            print(error)
     
     return rule_list[choice - 1]
 
 
 def set_player_name():
     name = ""
+    error = single_line_message("Name Must Be 3-10 Characters Long")
 
     while len(name) > 10 or len(name) < 3:
         if len(name) > 0:
-            print_message("Name Must Be 3-10 Characters Long")
+            print(error)
 
         name = input("\nEnter New Players Name: ")
+        print("\n\n")
 
     return name
 
@@ -45,27 +43,29 @@ def set_player_name():
 def create_players():
     players = []
     size = 0
-    menu_txt = "\n\n1) Add Human Player\n2) Add Computer Player\n0) Start Game\n"
+    choices = ["Add Human Player", "Add Computer Player", "Start Game"]
+    menu_txt = list_choices(choices, "Create Players")
     player_list = ""
 
     while True:
         # handle max players
         if len(players) == 10:
-            print_message("Maximum Players Reached")
+            print(single_line_message("Maximum Players Reached"))
+            wait()
             break
 
         print(menu_txt)
+        option = get_player_choice(1, 3, "Add Player? : ")
 
-        option = get_player_choice(0, 2, "Add Player? : ")
         if option is None:
-            print_message("Invalid Input")
+            print(single_line_message("Invalid Input"))
             continue
 
-        if option == 0:
+        if option == 3:
             if len(players) >= 2:
                 break
             else:
-                print_message("Minimum 2 Players")
+                print(single_line_message("Minimum 2 Players"))
 
         else:
             is_computer = option == 2
@@ -75,14 +75,14 @@ def create_players():
                 size = len(players[-1].name)
 
             player_type = "Human"
-            if players[-1].is_computer:
+            if is_computer:
                 player_type = "Computer"
             
             player_list += f" {players[-1].name} : {player_type} |"
 
         if players:
-            title = f"Players: {len(players)}"
-            print_message(player_list[:-1], will_wait=False, title=title)
+            title = f"\n\nPlayers: {len(players)}"
+            print(title + single_line_message(player_list[:-1], sep="="))
 
     # set player names to longest
     for player in players:
@@ -97,41 +97,57 @@ def set_hand_size():
     minimum = 1
     maximum = 50
 
+    message = single_line_message("Set Starting Hand Size")
+    error = single_line_message(f"Must Be Between {minimum} And {maximum}")
+
     while size is None:
-        print_message("Set Starting Hand Size", will_wait=False)
+        print(message)
         size = get_player_choice(minimum, maximum, f"Press Enter For Default ({default}): ", default)
 
         if size is None:
-            print_message(f"Must Be Between {minimum} And {maximum}")
+            print(error)
 
     return size
 
 
-def set_deck_count(players, hand_size):
+def set_deck_count(player_count, hand_size):
     decks = None
-    minimum = (((hand_size * players) + 20) // 52) + 1
+    minimum = (((hand_size * player_count) + 20) // 52) + 1
     maximum = 19 # keep below 4 digit card count
 
+    message = single_line_message("Number Of Decks Included")
+    error = single_line_message(f"Must Be Between {minimum} And {maximum}")
+
     while decks is None:
-        print_message("Number Of Decks Included", will_wait=False)
+        print(message)
         decks = get_player_choice(minimum, maximum, f"Press Enter For Minimum ({minimum}): ", minimum)
 
         if decks is None:
-            print_message(f"Must Be Between {minimum} And {maximum}")
+            print(error)
 
     return decks
 
 
 def turn(game):
     current_player = game.current_player()
+        # if current_player.is_computer or game.status["skip"]:
+            # non_playable_turn(game, current_player.is_computer)
+
     hand_size = len(current_player.hand)
 
-    while True:
-        print_state(game)
+    state = game_state(game.top_card, game.status)
+    player_list = all_player_hands(game.players, game.current_turn)
+    hand_options = hand_select(len(current_player.display_name), hand_size)
+    
+    player_list.insert(game.current_turn + 1, hand_options)
+    game_str = f"{state}\n{'\n'.join(player_list)}\n\n"
 
+    while True:
+        print(game_str)
         card = get_player_choice(0, hand_size, "Enter Move ( 0 - Pickup ): ")
+
         if card is None:
-            print_message("Invalid Move")
+            print(single_line_message("Invalid Move"))
             continue
 
         card -= 1
@@ -139,7 +155,7 @@ def turn(game):
 
         if turn_result == 0:
             # turn fail
-            print_message(f"!!! {current_player.name} Cannot Play: {current_player.hand[card]} !!!")
+            print(single_line_message(f"!!! {current_player.name} Cannot Play: {current_player.hand[card]} !!!"))
 
         else:
             # turn success
@@ -147,64 +163,22 @@ def turn(game):
 
     if card < 0:
         if game.was_deck_added():
-            print_message("Not enough Cards: New Deck Added")
+            print(single_line_message("Not enough Cards: New Deck Added"))
 
-        print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup)
+        print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup))
 
     else:
-        print_message(f"{current_player.name} Played: " + str(game.top_card))
+        print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
+    
+    wait()
     
     if turn_result == 2:
-        pick_suit_menu(game)
-
-
-def pick_suit_menu(game):
-    suit_txt = "Pick A Suit: "
-    choice = None
-    suit_list = []
-    count = 1
-
-    for suit in Suits:
-        suit_txt += f" {count}) {suit.value} "
-        suit_list.append(suit)
-        count += 1
-
-    while choice is None:
-        print_message(suit_txt, will_wait=False)
-
-        choice = get_player_choice(1, len(Suits), "Enter Suit: ")
-
-        if choice is None:
-            print_message("Invalid Choice")
-            continue
-
-    choice -= 1
-    game.pick_suit(suit_list[choice])
-
-
-# Non Input Menus
-
-
-def get_rules(rule_dir_path):
-    if is_rule_dir_valid(rule_dir_path):
-        rule_list = get_all_rule_files(rule_dir_path)
-
-        if len(rule_list) == 0:
-            raise Exception("rules directory contains no .txt files")
-        
-        rule_file_path = pick_rules(rule_list)
-        rules = load_rules(rule_file_path)
-
-        print_message(f"Loaded '{get_rule_name(rule_file_path)}' From '{rule_file_path}'")
-        return rules
-    
-    print_message("No Rules Found / Rules Directory Is Invalid.", will_wait=False)
-    print_message("Loaded Default Rules")
-    return default_rules
-
+        game.pick_suit(pick_suit_menu())
 
 def non_playable_turn(game, computer = False):
-    print_state(game)
+    game_str = game_state(game.top_card, game.status) + "\n"
+    game_str += "\n".join(all_player_hands(game.players, game.current_turn)) + "\n\n"
+    print(game_str)
     wait()
 
     if game.status["skip"]:
@@ -216,40 +190,64 @@ def non_playable_turn(game, computer = False):
 
         if picked_up:
             if game.was_deck_added():
-                    print_message("Not enough Cards: New Deck Added")
-            print_message(f"{current_player.name} Picked Up: ", current_player.last_pickup, hide_cards=True)
+                    print(single_line_message("Not enough Cards: New Deck Added"))
+            print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup, hide_cards=True))
 
         else:
-            print_message(f"{current_player.name} Played: " + str(game.top_card))
-
-
-def print_card_dealing(players):
-    for i in range(len(players[0].hand)):
-        print_all_players(players, length = i + 1)
-        sleep(deal_time)
-
-
-def print_message(txt, cards = [], hide_cards = False, will_wait = True, title=""):
-    if cards:
-        join = " | "
-        hidden = "[?]"
-
-        for card in cards:
-            if hide_cards:
-                card = hidden
-            txt += str(card) + join
-
-        txt = txt[:-len(join)]
-    
-    sep = "-" * len(txt)
-    title += "\n"
-    print(f"\n\n{title}{sep}\n{txt}\n{sep}\n\n")
-
-    if will_wait:
+            print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
+        
         wait()
 
 
-def print_winner(name):
-    txt = f"!!! {name} Wins !!!"
-    marking = "=" * len(txt)
-    print(f"\n{marking}\n{txt}\n{marking}\n")
+def pick_suit_menu():
+    suit_list = [suit.value for suit in Suits]
+    suit_txt = list_choices(suit_list, "Pick A Suit:")
+    error = single_line_message("Invalid Choice")
+    choice = None
+
+    while choice is None:
+        print(suit_txt)
+        choice = get_player_choice(1, len(Suits), "Enter Suit: ")
+
+        if choice is None:
+            print(error)
+
+    choice -= 1
+    return Suits(suit_list[choice])
+
+
+# Non Input Menus
+
+
+def get_rules(rule_dir_path):
+    rules = default_rules
+    result = ""
+
+    if is_rule_dir_valid(rule_dir_path):
+        rule_list = get_all_rule_files(rule_dir_path)
+
+        if len(rule_list) == 0:
+            raise Exception("rules directory contains no .txt files")
+        
+        rule_file_path = pick_rules(rule_list)
+        rules = load_rules(rule_file_path)
+
+        result = single_line_message(f"Loaded '{get_rule_name(rule_file_path)}' From '{rule_file_path}'")
+    else:
+        result += single_line_message("No Rules Found / Rules Directory Is Invalid.")
+        result += single_line_message("Loaded Default Rules")
+
+    print(result)
+    wait()
+    return rules
+    
+
+def print_card_dealing(players):
+    print()
+    for i in range(len(players[0].hand)):
+        for player in players:
+            print(player_hand(player.hand[:i+1], player.display_name, player.is_computer))
+            sleep(deal_time)
+        sleep(deal_time)
+        print()
+    print("\n\n")

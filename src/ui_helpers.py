@@ -4,6 +4,7 @@ from deck import Suits
 
 def get_player_choice(min_val, max_val, prompt = "", default = None):
     choice = input(prompt)
+    print("\n\n")
 
     try:
         choice = int(choice)
@@ -20,68 +21,93 @@ def get_player_choice(min_val, max_val, prompt = "", default = None):
     return choice
 
 
-# Print UI
+def list_choices(options, title):
+    title = f" {title} "
+    sep = "-" * len(title)
+    op_txt = "\n".join([f"  {i+1}) {options[i]}" for i in range(len(options))])
 
-        
-def print_state(game):
-    top_card = game.top_card
+    return f"\n{sep}\n{title}\n{sep}\n{op_txt}\n{sep}\n"
 
+
+def game_state(top_card, status):
     # if suit was changed, show top card as suit
-    if game.status["suit"] is not None:
-        suit = Suits[game.status["suit"]]
+    if status["suit"] is not None:
+        suit = Suits[status["suit"]]
         top_card = Card(suit, top_card.num)
 
-    status = f" Top Card: {str(top_card)}"
+    state = f"Top Card: {str(top_card)}"
 
-    if game.status["pickup"] > 0:
-        status += "  - +" + str(game.status["pickup"])
+    if status["pickup"] > 0:
+        state += "  - +" + str(status["pickup"])
 
-    if game.status["skip"]:
-        status += "  - Skip"
+    if status["skip"]:
+        state += "  - Skip"
 
     direction = "\u21E9"
-    if game.status["direction"] < 0:
+    if status["direction"] < 0:
         direction = "\u21E7"
-    status += "  - " + direction
+    state += f"  - {direction}"
 
-    spacing = "=" * len(status)
-    print(f"\n{spacing}\n{status}\n{spacing}")
-
-    print_all_players(game.players, current_turn=game.current_turn)
+    return single_line_message(state, sep="=")
 
 
-def print_all_players(players, current_turn = -1, length = None):
+def all_player_hands(players, current_turn = -1):
     player_str = []
     size = 0
 
     for i in range(len(players)):
-        txt = ""
-        # show card select options if not AI and current
-        selectable = i == current_turn and not players[i].is_computer
-
-        if length is None:
-            # show players full hand
-            txt = get_str_player(players[i], players[i].is_computer, selectable=selectable)
-        else:
-            # only show hands up to length
-            txt = get_str_player(players[i], players[i].is_computer, players[i].hand[:length], selectable)
+        # show players full hand
+        txt = player_hand(players[i].hand, players[i].display_name, players[i].is_computer)
         
-        #keep track of longest line - ignore extra selectable line
-        line_len = len(txt.split("\n")[0])
-        if line_len > size:
-            size = line_len
+        #keep track of longest line
+        if len(txt) > size:
+            size = len(txt)
         
         player_str.append(txt)
     
     # apply current player marking
     if current_turn != -1:
         marking = "-" * size
-        player_str[current_turn] = f"{marking}\n{player_str[current_turn]}\n{marking}"
+        player_str.insert(current_turn + 1, marking)
+        player_str.insert(current_turn, marking)
 
-    print("\n" + "\n\n".join(player_str) + "\n\n")
+    return player_str
 
 
-# UI helpers
+def player_hand(hand, name, hide = False):
+    txt = f" {name}:"
+    sep = "|"
+    hidden = "[?]"
+
+    for card in hand:
+        if hide:
+            card = hidden
+        txt += f" {str(card)} {sep}"
+
+    return txt[:-len(sep)]
+
+
+def hand_select(name_len, hand_len):
+    space = " " * (name_len + 2)
+    options = ["_"*(4-len(str(i))) + f"{i}_" for i in range(1, hand_len+1)]
+    return space + "|".join(options)
+
+
+def single_line_message(txt, cards = [], hide_cards = False, sep = "-"):
+    if cards:
+        join = " | "
+        hidden = "[?]"
+
+        for card in cards:
+            if hide_cards:
+                card = hidden
+            txt += str(card) + join
+
+        txt = txt[:-len(join)]
+    
+    txt = f" {txt} "
+    line = sep * len(txt)
+    return f"\n{line}\n{txt}\n{line}\n"
 
 
 def set_name_spacing(player, size):
@@ -89,30 +115,6 @@ def set_name_spacing(player, size):
     player.display_name = player.name + " " * (size - len(player.name)) 
 
 
-def get_str_player(player, hide = False, hand = None, selectable = False):
-    if hand is None:
-        hand = player.hand
-
-    txt = player.display_name + ":"
-    sel_txt = " " * len(txt) # empty space above name
-    sep = "|"
-    hidden = "[?]"
-    count = 1
-
-    for card in hand:
-        if hide:
-            card = hidden
-        txt += f" {str(card)} {sep}"
-
-        if selectable:
-            space = "_" * (4 - len(str(count)))
-            sel_txt += f"{space}{count}_{sep}"
-            count += 1
-
-    if selectable:
-        txt = sel_txt[:-len(sep)] + "\n" + txt
-    return txt[:-len(sep)]
-
-
 def wait():
     input("Press Enter to Continue ")
+    print("\n\n")

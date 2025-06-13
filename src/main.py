@@ -1,11 +1,11 @@
 from blackjack import Blackjack
 from ui import *
 
+
 def game_setup():
     rules_path = "rules"
 
     rules = get_rules(rules_path)
-    print(rules)
 
     players = create_players()
 
@@ -28,10 +28,12 @@ def game_loop(game):
         else:
             turn(game)
     
-    print_winner(game.current_player().name)
+    winner = single_line_message(f"!!! {game.current_player().name} Wins !!!", sep="=")
+    print(winner)
 
 
 def main():
     game_loop(game_setup())
+
 
 main()
