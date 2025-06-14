@@ -10,20 +10,26 @@ def skip_turn(status):
     status["skip"] = True
 
 
-def pickup_add(status, amount):
-    status["pickup"] += amount
+def create_pickup_add(amount):
+    def pickup_add(status):
+        status["pickup"] += amount
+    
+    return pickup_add
 
 
-def pickup_set(status, amount):
-    status["pickup"] = amount
+def create_pickup_set(amount):
+    def pickup_set(status):
+        status["pickup"] = amount
+
+    return pickup_set
 
 
 effect_alias = {
     "suit": ("suit", change_suit),
     "direction": ("direction", change_direction),
     "skip": ("skip", skip_turn),
-    "pickup_add": ("pickup", pickup_add),
-    "pickup_set": ("pickup", pickup_set),
+    "pickup_add": ("pickup", create_pickup_add),
+    "pickup_set": ("pickup", create_pickup_set),
 }
 
 

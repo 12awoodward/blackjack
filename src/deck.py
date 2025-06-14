@@ -62,23 +62,24 @@ class Deck:
         self.__shuffle_deck()
     
 
-    def __set_card_effects(self, effects):
-        effect_funcs = []
+    def __set_card_effects(self, effects_to_apply):
+        effects_applied = []
 
-        for effect in effects:
-            effect = effect.split(":")
-            effect_name = effect[0]
+        for effect_rule in effects_to_apply:
+            effect_parts = effect_rule.split(":")
+            effect_name = effect_parts[0]
 
-            if len(effect) > 1:
-                effect_arg = int(effect[1])
-                effect_vals = effect_alias[effect_name]
-                effect_func = (effect_vals[0], lambda status: effect_vals[1](status, effect_arg))
-                effect_funcs.append(effect_func)
+
+            if len(effect_parts) > 1:
+                effect_arg = int(effect_parts[1])
+                effect_val = effect_alias[effect_name][0]
+                effect_func = effect_alias[effect_name][1](effect_arg)
+                effects_applied.append((effect_val, effect_func))
 
             else:
-                effect_funcs.append(effect_alias[effect_name])
+                effects_applied.append(effect_alias[effect_name])
 
-        return effect_funcs
+        return effects_applied
 
 
     def draw_card(self, count = 1):
