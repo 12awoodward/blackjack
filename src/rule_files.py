@@ -77,17 +77,23 @@ def load_rules(rule_path):
     if len(rules) == 0:
         return {}
 
-    rules = rules.split("\n")
     valid_suits = get_valid_suit_str()
     valid_nums = get_valid_number_str()
     valid_effects = get_valid_effect_str()
+    
+    rules = rules.split("\n")
     rule_set = {}
     loaded = 0
+    total = len(rules)
 
     for rule in rules:
         rule_parts = rule.lower().split("|")
 
         if len(rule_parts) != 3:
+            # Ignore empty lines
+            if len(rule.strip()) == 0:
+                total -= 1
+                continue
             print_rule_issue(rule, "Not 3 Parts")
             continue
 
@@ -136,5 +142,5 @@ def load_rules(rule_path):
 
         loaded += 1
 
-    print(f" Loaded {loaded} of {len(rules)} Rules")
+    print(f" Loaded {loaded} of {total} Rules")
     return rule_set
