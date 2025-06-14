@@ -67,8 +67,8 @@ def get_valid_effect_str():
 
 
 def print_rule_issue(rule, issue):
-    print(f"\n\nUnknown Rule: {rule}")
-    print(f"     Error: {issue}")
+    print(f"Unknown Rule: {rule}")
+    print(f"     Error: {issue}\n")
 
 
 def load_rules(rule_path):
@@ -82,6 +82,7 @@ def load_rules(rule_path):
     valid_nums = get_valid_number_str()
     valid_effects = get_valid_effect_str()
     rule_set = {}
+    loaded = 0
 
     for rule in rules:
         rule_parts = rule.lower().split("|")
@@ -133,4 +134,7 @@ def load_rules(rule_path):
         rule_effect[0] = effect_name
         rule_set[suit][num].append(":".join(rule_effect))
 
+        loaded += 1
+
+    print(f" Loaded {loaded} of {len(rules)} Rules")
     return rule_set
