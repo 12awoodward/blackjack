@@ -18,6 +18,10 @@ class Blackjack:
         self.__initial_deal(hand_size)
         self.top_card = self.__deck.draw_card()[0]
 
+        # apply top card effects - ignore suit change
+        self.__apply_card_effects(self.top_card)
+        self.status["suit"] = None
+
 
     def __initial_deal(self, amount = 7):
         for player in self.players:
