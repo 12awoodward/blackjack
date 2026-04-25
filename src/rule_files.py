@@ -1,33 +1,33 @@
 import os
 
 from deck import Suits, Numbers
-from card_effects import effect_alias, effect_has_arg
+from card_effects import BASE_EFFECT_ALIAS, SET_INT_EFFECT_ALIAS
 
-default_rules = {
-    "all" : {
-        "A" : ["suit"],
-        "2" : ["pickup_add:2"],
-        "8" : ["skip"],
-        "Q" : ["direction"],
+DEFAULT_RULES = {
+    "all": {
+        "A": ["suit"],
+        "2": ["pickup_add:2"],
+        "8": ["skip"],
+        "Q": ["direction"],
     },
-    "black" : {
-        "J" : ["pickup_add:5"],
+    "black": {
+        "J": ["pickup_add:5"],
     },
-    "red" : {
-        "J" : ["pickup_set:0"],
+    "red": {
+        "J": ["pickup_set:0"],
     },
 }
 
 
-def is_rule_dir_valid(rule_dir):
+def is_rule_dir_valid(rule_dir: str):
     if os.path.exists(rule_dir):
         if len(os.listdir(rule_dir)) > 0:
             return True
     return False
 
 
-def get_all_rule_files(rule_dir):
-    rule_files = []
+def get_all_rule_files(rule_dir: str):
+    rule_files: list[str] = []
     for file in os.listdir(rule_dir):
         file_path = os.path.join(rule_dir, file)
 
@@ -39,17 +39,17 @@ def get_all_rule_files(rule_dir):
     return rule_files
 
 
-def get_rule_name(rule_path):
+def get_rule_name(rule_path: str):
     return os.path.splitext(os.path.basename(rule_path))[0].replace("_", " ")
 
 
-def get_file_contents(path):
+def get_file_contents(path: str):
     with open(path, "r") as file:
         return file.read()
 
 
 def get_valid_number_str():
-    options = []
+    options: list[str] = []
     for num in Numbers:
         options.append(num.value.strip().lower())
     return options
@@ -63,26 +63,26 @@ def get_valid_suit_str():
 
 
 def get_valid_effect_str():
-    return effect_alias.keys()
+    return list(BASE_EFFECT_ALIAS.keys()) + list(SET_INT_EFFECT_ALIAS.keys())
 
 
-def print_rule_issue(rule, issue):
+def print_rule_issue(rule: str, issue: str):
     print(f"Unknown Rule: {rule}")
     print(f"     Error: {issue}\n")
 
 
-def load_rules(rule_path):
+def load_rules(rule_path: str):
     rules = get_file_contents(rule_path).strip()
+    rule_set: dict[str, dict[str, list[str]]] = {}
     # no rules
     if len(rules) == 0:
-        return {}
+        return rule_set
 
     valid_suits = get_valid_suit_str()
     valid_nums = get_valid_number_str()
     valid_effects = get_valid_effect_str()
-    
+
     rules = rules.split("\n")
-    rule_set = {}
     loaded = 0
     total = len(rules)
 
@@ -114,7 +114,7 @@ def load_rules(rule_path):
             print_rule_issue(rule, "Invalid Card Effect")
             continue
 
-        if effect_has_arg(effect_name) and len(rule_effect) == 2:
+        if effect_name in SET_INT_EFFECT_ALIAS and len(rule_effect) == 2:
             effect_arg = rule_effect[1].strip()
 
             try:
@@ -125,14 +125,16 @@ def load_rules(rule_path):
                 continue
 
             rule_effect[1] = str(effect_arg)
-        
-        elif effect_has_arg(effect_name) or len(rule_effect) != 1:
-            print_rule_issue(rule, "Effect Needs Number Value / Has Number Value When Not Needed")
+
+        elif effect_name in SET_INT_EFFECT_ALIAS or len(rule_effect) != 1:
+            print_rule_issue(
+                rule, "Effect Needs Number Value / Has Number Value When Not Needed"
+            )
             continue
 
         if suit not in rule_set:
             rule_set[suit] = {}
-        
+
         num = num.upper()
         if num not in rule_set[suit]:
             rule_set[suit][num] = []

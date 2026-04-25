@@ -1,8 +1,12 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from collections.abc import Callable
+
 from enum import Enum
 from random import shuffle
 
 from card import Card
-from card_effects import effect_alias
+from card_effects import BASE_EFFECT_ALIAS, SET_INT_EFFECT_ALIAS
 
 
 class Suits(Enum):
@@ -29,25 +33,24 @@ class Numbers(Enum):
 
 
 class Deck:
-    def __init__(self, rules, deck_count = 1):
+    def __init__(self, rules: dict[str, dict[str, list[str]]], deck_count: int = 1):
         self.__rules = rules
-        self.__deck = []
+        self.__deck: list[Card] = []
         self.deck_count = 0
 
         self.__gen_deck(deck_count)
 
-
-    def __gen_deck(self, deck_count = 1):
-        for i in range(deck_count):
+    def __gen_deck(self, deck_count: int = 1):
+        for _ in range(deck_count):
             self.deck_count += 1
-            
+
             for suit in Suits:
                 color = "black"
                 if suit == Suits.HEARTS or suit == Suits.DIAMONDS:
-                    color = "red" 
-                    
+                    color = "red"
+
                 for num in Numbers:
-                    effects = []
+                    effects: list[tuple[str, Callable[[GameStatus], None]]] = []
                     num_str = num.value.strip()
                     suit_str = suit.name.lower()
 
@@ -55,48 +58,53 @@ class Deck:
                     for key in key_check:
                         if key in self.__rules:
                             if num_str in self.__rules[key]:
-                                effects += self.__set_card_effects(self.__rules[key][num_str])
-                    
+                                effects += self.__set_card_effects(
+                                    self.__rules[key][num_str]
+                                )
+
                     self.__deck.append(Card(suit, num, effects))
 
         self.__shuffle_deck()
-    
 
-    def __set_card_effects(self, effects_to_apply):
-        effects_applied = []
+    def __set_card_effects(self, effects_to_apply: list[str]):
+        effects_applied: list[tuple[str, Callable[[GameStatus], None]]] = []
 
         for effect_rule in effects_to_apply:
-            effect_parts = effect_rule.split(":")
-            effect_name = effect_parts[0]
-
-
-            if len(effect_parts) > 1:
-                effect_arg = int(effect_parts[1])
-                effect_val = effect_alias[effect_name][0]
-                effect_func = effect_alias[effect_name][1](effect_arg)
-                effects_applied.append((effect_val, effect_func))
+            if effect_rule in BASE_EFFECT_ALIAS:
+                effects_applied.append(BASE_EFFECT_ALIAS[effect_rule])
 
             else:
-                effects_applied.append(effect_alias[effect_name])
+                effect_parts = effect_rule.split(":")
+                effect_name = effect_parts[0]
+
+                if effect_name in SET_INT_EFFECT_ALIAS:
+                    effect_arg = int(effect_parts[1])
+                    effect_val = SET_INT_EFFECT_ALIAS[effect_name][0]
+                    effect_func = SET_INT_EFFECT_ALIAS[effect_name][1](effect_arg)
+                    effects_applied.append((effect_val, effect_func))
+
+                else:
+                    raise Exception(f"unknown effect: {effect_rule}")
 
         return effects_applied
 
-
-    def draw_card(self, count = 1):
+    def draw_card(self, count: int = 1):
         # not enough cards for pickup - add another deck
         if count > len(self.__deck):
             self.__gen_deck()
 
-        draw = []
-        for i in range(count):
+        draw: list[Card] = []
+        for _ in range(count):
             draw.append(self.__deck.pop())
         return draw
 
-
-    def return_to_deck(self, card):
+    def return_to_deck(self, card: Card):
         self.__deck.append(card)
         self.__shuffle_deck()
 
-
     def __shuffle_deck(self):
         shuffle(self.__deck)
+
+
+if TYPE_CHECKING:
+    from blackjack import GameStatus

@@ -1,16 +1,38 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from time import sleep
 
-from ui_helpers import *
+from ui_helpers import (
+    list_choices,
+    single_line_message,
+    get_player_choice,
+    wait,
+    set_name_spacing,
+    player_hand,
+    game_state,
+    all_player_hands,
+    hand_select,
+)
 from player import Player
-from rule_files import *
+from deck import Suits
+from rule_files import (
+    DEFAULT_RULES,
+    is_rule_dir_valid,
+    get_all_rule_files,
+    load_rules,
+    get_rule_name,
+)
 
 
 # Player Input Menus
 
 
-def pick_rules(rule_list):
+def pick_rules(rule_list: list[str]):
     choice = None
-    rule_txt = list_choices([get_rule_name(rule) for rule in rule_list], "Available Rules")
+    rule_txt = list_choices(
+        [get_rule_name(rule) for rule in rule_list], "Available Rules"
+    )
     error = single_line_message("Invalid Choice")
 
     while choice is None:
@@ -19,7 +41,7 @@ def pick_rules(rule_list):
 
         if choice is None:
             print(error)
-    
+
     return rule_list[choice - 1]
 
 
@@ -38,7 +60,7 @@ def set_player_name():
 
 
 def create_players():
-    players = []
+    players: list[Player] = []
     size = 0
     choices = ["Add Human Player", "Add Computer Player", "Start Game"]
     menu_txt = list_choices(choices, "Create Players")
@@ -74,7 +96,7 @@ def create_players():
             player_type = "Human"
             if is_computer:
                 player_type = "Computer"
-            
+
             player_list += f" {players[-1].name} : {player_type} |"
 
         if players:
@@ -84,7 +106,7 @@ def create_players():
     # set player names to longest
     for player in players:
         set_name_spacing(player, size)
-    
+
     return players
 
 
@@ -99,7 +121,9 @@ def set_hand_size():
 
     while size is None:
         print(message)
-        size = get_player_choice(minimum, maximum, f"Press Enter For Default ({default}): ", default)
+        size = get_player_choice(
+            minimum, maximum, f"Press Enter For Default ({default}): ", default
+        )
 
         if size is None:
             print(error)
@@ -107,17 +131,19 @@ def set_hand_size():
     return size
 
 
-def set_deck_count(player_count, hand_size):
+def set_deck_count(player_count: int, hand_size: int):
     decks = None
     minimum = (((hand_size * player_count) + 20) // 52) + 1
-    maximum = 19 # keep below 4 digit card count
+    maximum = 19  # keep below 4 digit card count
 
     message = single_line_message("Number Of Decks Included")
     error = single_line_message(f"Must Be Between {minimum} And {maximum}")
 
     while decks is None:
         print(message)
-        decks = get_player_choice(minimum, maximum, f"Press Enter For Minimum ({minimum}): ", minimum)
+        decks = get_player_choice(
+            minimum, maximum, f"Press Enter For Minimum ({minimum}): ", minimum
+        )
 
         if decks is None:
             print(error)
@@ -157,13 +183,13 @@ def play_again():
     return bool(choice - 1)
 
 
-def turn(game):
+def turn(game: Blackjack):
     current_player = game.current_player()
     state = game_state(game.top_card, game.status)
     player_list = all_player_hands(game.players, game.current_turn)
 
     # Player Turn
-    if not(current_player.is_computer or game.status["skip"]):
+    if not (current_player.is_computer or game.status["skip"]):
         hand_size = len(current_player.hand)
         hand_options = hand_select(len(current_player.display_name), hand_size)
         player_list.insert(game.current_turn + 1, hand_options)
@@ -183,7 +209,11 @@ def turn(game):
 
             if turn_result == 0:
                 # turn fail
-                print(single_line_message(f"!!! {current_player.name} Cannot Play: {current_player.hand[card]} !!!"))
+                print(
+                    single_line_message(
+                        f"!!! {current_player.name} Cannot Play: {current_player.hand[card]} !!!"
+                    )
+                )
 
             else:
                 # turn success
@@ -193,13 +223,21 @@ def turn(game):
             if game.was_deck_added():
                 print(single_line_message("Not enough Cards: New Deck Added"))
 
-            print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup))
+            print(
+                single_line_message(
+                    f"{current_player.name} Picked Up: ", current_player.last_pickup
+                )
+            )
 
         else:
-            print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
-        
+            print(
+                single_line_message(
+                    f"{current_player.name} Played: " + str(game.top_card)
+                )
+            )
+
         wait()
-        
+
         if turn_result == 2:
             game.pick_suit(pick_suit_menu())
 
@@ -220,20 +258,30 @@ def turn(game):
 
             if picked_up:
                 if game.was_deck_added():
-                        print(single_line_message("Not enough Cards: New Deck Added"))
-                print(single_line_message(f"{current_player.name} Picked Up: ", current_player.last_pickup, hide_cards=True))
+                    print(single_line_message("Not enough Cards: New Deck Added"))
+                print(
+                    single_line_message(
+                        f"{current_player.name} Picked Up: ",
+                        current_player.last_pickup,
+                        hide_cards=True,
+                    )
+                )
 
             else:
-                print(single_line_message(f"{current_player.name} Played: " + str(game.top_card)))
-            
+                print(
+                    single_line_message(
+                        f"{current_player.name} Played: " + str(game.top_card)
+                    )
+                )
+
             wait()
 
 
 # Non Input Menus
 
 
-def get_rules(rule_dir_path):
-    rules = default_rules
+def get_rules(rule_dir_path: str):
+    rules = DEFAULT_RULES
     result = ""
 
     if is_rule_dir_valid(rule_dir_path):
@@ -241,11 +289,13 @@ def get_rules(rule_dir_path):
 
         if len(rule_list) == 0:
             raise Exception("rules directory contains no .txt files")
-        
+
         rule_file_path = pick_rules(rule_list)
         rules = load_rules(rule_file_path)
 
-        result = single_line_message(f"Loaded '{get_rule_name(rule_file_path)}' From '{rule_file_path}'")
+        result = single_line_message(
+            f"Loaded '{get_rule_name(rule_file_path)}' From '{rule_file_path}'"
+        )
     else:
         result += single_line_message("No Rules Found / Rules Directory Is Invalid.")
         result += single_line_message("Loaded Default Rules")
@@ -253,9 +303,9 @@ def get_rules(rule_dir_path):
     print(result)
     wait()
     return rules
-    
 
-def print_card_dealing(players):
+
+def print_card_dealing(players: list[Player]):
     hand_size = len(players[0].hand)
     deal_time = 0.05
 
@@ -264,12 +314,20 @@ def print_card_dealing(players):
         deal_time *= 2
         if hand_size <= 10:
             deal_time *= 2
-    
+
     print()
     for i in range(hand_size):
         for player in players:
-            print(player_hand(player.hand[:i+1], player.display_name, player.is_computer))
+            print(
+                player_hand(
+                    player.hand[: i + 1], player.display_name, player.is_computer
+                )
+            )
             sleep(deal_time)
         sleep(deal_time)
         print()
     print("\n\n")
+
+
+if TYPE_CHECKING:
+    from blackjack import Blackjack

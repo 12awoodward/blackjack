@@ -1,27 +1,32 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from card import Card
 from deck import Suits
 
 
-def get_player_choice(min_val, max_val, prompt = "", default = None):
+def get_player_choice(
+    min_val: int, max_val: int, prompt: str = "", default: int | None = None
+):
     choice = input(prompt)
     print("\n\n")
 
     try:
         choice = int(choice)
-    
+
     except ValueError:
         if len(choice) == 0 and default != None:
             return default
 
         return None
-    
+
     if choice > max_val or choice < min_val:
         return None
-    
+
     return choice
 
 
-def list_choices(options, title):
+def list_choices(options: list[str], title: str):
     title = f" {title} "
     sep = "-" * len(title)
     op_txt = "\n".join([f"  {i+1}) {options[i]}" for i in range(len(options))])
@@ -29,7 +34,7 @@ def list_choices(options, title):
     return f"\n{sep}\n{title}\n{sep}\n{op_txt}\n{sep}\n"
 
 
-def game_state(top_card, status):
+def game_state(top_card: Card, status: GameStatus):
     # if suit was changed, show top card as suit
     if status["suit"] is not None:
         suit = Suits[status["suit"]]
@@ -43,28 +48,30 @@ def game_state(top_card, status):
     if status["skip"]:
         state += "  - Skip"
 
-    direction = "\u21E9"
+    direction = "\u21e9"
     if status["direction"] < 0:
-        direction = "\u21E7"
+        direction = "\u21e7"
     state += f"  - {direction}"
 
     return single_line_message(state, sep="=")
 
 
-def all_player_hands(players, current_turn = -1):
-    player_str = []
+def all_player_hands(players: list[Player], current_turn: int = -1):
+    player_str: list[str] = []
     size = 0
 
     for i in range(len(players)):
         # show players full hand
-        txt = player_hand(players[i].hand, players[i].display_name, players[i].is_computer)
-        
-        #keep track of longest line
+        txt = player_hand(
+            players[i].hand, players[i].display_name, players[i].is_computer
+        )
+
+        # keep track of longest line
         if len(txt) > size:
             size = len(txt)
-        
+
         player_str.append(txt)
-    
+
     # apply current player marking
     if current_turn != -1:
         marking = "-" * size
@@ -74,7 +81,7 @@ def all_player_hands(players, current_turn = -1):
     return player_str
 
 
-def player_hand(hand, name, hide = False):
+def player_hand(hand: list[Card], name: str, hide: bool = False):
     txt = f" {name}:"
     sep = "|"
     hidden = "[?]"
@@ -84,16 +91,18 @@ def player_hand(hand, name, hide = False):
             card = hidden
         txt += f" {str(card)} {sep}"
 
-    return txt[:-len(sep)]
+    return txt[: -len(sep)]
 
 
-def hand_select(name_len, hand_len):
+def hand_select(name_len: int, hand_len: int):
     space = " " * (name_len + 2)
-    options = ["_"*(4-len(str(i))) + f"{i}_" for i in range(1, hand_len+1)]
+    options = ["_" * (4 - len(str(i))) + f"{i}_" for i in range(1, hand_len + 1)]
     return space + "|".join(options)
 
 
-def single_line_message(txt, cards = [], hide_cards = False, sep = "-"):
+def single_line_message(
+    txt: str, cards: list[Card] = [], hide_cards: bool = False, sep: str = "-"
+):
     if cards:
         join = " | "
         hidden = "[?]"
@@ -103,18 +112,23 @@ def single_line_message(txt, cards = [], hide_cards = False, sep = "-"):
                 card = hidden
             txt += str(card) + join
 
-        txt = txt[:-len(join)]
-    
+        txt = txt[: -len(join)]
+
     txt = f" {txt} "
     line = sep * len(txt)
     return f"\n{line}\n{txt}\n{line}\n"
 
 
-def set_name_spacing(player, size):
+def set_name_spacing(player: Player, size: int):
     # add spacing to match longest name
-    player.display_name = player.name + " " * (size - len(player.name)) 
+    player.display_name = player.name + " " * (size - len(player.name))
 
 
 def wait():
     input("Press Enter to Continue ")
     print("\n\n")
+
+
+if TYPE_CHECKING:
+    from blackjack import GameStatus
+    from player import Player
